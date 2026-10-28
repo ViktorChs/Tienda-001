@@ -373,7 +373,10 @@
     var wrap = card.querySelector('.combo-imgwrap');
     if (wrap) {
       Array.prototype.slice.call(wrap.querySelectorAll('img.combo-layer')).forEach(function (x) { x.remove(); });
-      (meta.layers || []).forEach(function (L) {
+      // Si la imagen del combo ya es el compuesto, las capas están horneadas:
+      // no volver a pintarlas encima (evita duplicados).
+      var baked = !!(meta.composite && c.image === meta.composite);
+      (baked ? [] : (meta.layers || [])).forEach(function (L) {
         if (!L || !L.src) return;
         var im = document.createElement('img');
         im.className = 'combo-layer';
@@ -491,7 +494,12 @@
   GD.ready.then(function (D) {
     D = D || {};
     var hasCfg = D.settings && Object.keys(D.settings).length;
-    if (hasCfg) { applyTheme(D.settings, D.themes || []); hydrateTexts(D.settings); applyClosedBanner(D.settings.store); applyLogoSize(D.settings.store); }
+    if (hasCfg) {
+      if (window.GHTheme && window.GHTheme.setDefault) {
+        window.GHTheme.setDefault(((D.settings.store || {}).defaultTheme) || 'light');
+      }
+      applyTheme(D.settings, D.themes || []); hydrateTexts(D.settings); applyClosedBanner(D.settings.store); applyLogoSize(D.settings.store);
+    }
 
     var products = D.products || [];
     if (!products.length) { window.dispatchEvent(new CustomEvent('gh:ready')); return; }

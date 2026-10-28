@@ -152,6 +152,15 @@
     }
     return '<div class="skeleton">' + out + '</div>';
   }
+  function productSkeleton() {
+    var cards = '';
+    for (var i = 0; i < 8; i++) {
+      cards += '<div class="sk-pcard"><span class="sk sk-pcard-img"></span><span class="sk sk-line"></span><span class="sk sk-line short"></span></div>';
+    }
+    return '<div class="sk-toolbar">' +
+      '<span class="sk sk-search"></span><span class="sk sk-filter"></span><span class="sk sk-filter"></span><span class="sk sk-filter"></span><span class="sk sk-actions"></span>' +
+      '</div><div class="pcard-grid">' + cards + '</div>';
+  }
   function emptyState(title, sub, ctaLabel, ctaId, icon) {
     return '<div class="card empty">' +
       (icon ? '<div class="empty-ico">' + icon + '</div>' : '') +
@@ -247,8 +256,23 @@
     var root = $('#modalRoot');
     // Limpia overlays que aún estén animando su salida.
     if (root) $all('.overlay.closing', root).forEach(function (o) { o.remove(); });
-    var ov = el('div', { class: 'overlay' });
+    var isFs = opts.size === 'fullscreen';
+    var ov = el('div', { class: 'overlay' + (isFs ? ' overlay-fs' : '') });
     var modal = el('div', { class: 'modal' + (opts.size ? ' ' + opts.size : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': opts.title || 'Diálogo' });
+    if (isFs) {
+      ov.style.padding = '0';
+      ov.style.alignItems = 'stretch';
+      ov.style.justifyContent = 'stretch';
+      ov.style.overflow = 'hidden';
+      modal.style.width = '100%';
+      modal.style.maxWidth = 'none';
+      modal.style.height = '100%';
+      modal.style.maxHeight = 'none';
+      modal.style.margin = '0';
+      modal.style.border = '0';
+      modal.style.borderRadius = '0';
+      modal.style.boxShadow = 'none';
+    }
     var head = el('header', null,
       '<h3>' + esc(opts.title || '') + '</h3>' +
       '<button class="btn ghost sm" data-x type="button" aria-label="Cerrar">✕</button>');
@@ -283,7 +307,32 @@
   }
   function requestClose() {
     if (!MODAL || MODAL.closing) return;
-    if (MODAL.guard && MODAL.dirty) { confirmDiscard(closeModal); return; }
+    if (MODAL.guard && (MODAL.dirty || (MODAL._prodDraft && MODAL._prodDraft.dirty && MODAL._prodDraft.dirty()))) {
+      if (MODAL._prodDraft) {
+        var dk = MODAL._prodDraft.key;
+        var ov = el('div', { class: 'overlay top' });
+        var modalD = el('div', { class: 'modal sm', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Cambios sin guardar' });
+        modalD.appendChild(el('header', null, '<h3>Cambios sin guardar</h3>'));
+        modalD.appendChild(el('div', { class: 'body' }, '<p>Tienes cambios sin guardar. Puedes guardarlos como borrador para retomarlos después o cerrarlos sin guardar.</p>'));
+        var footD = el('footer');
+        var keep = el('button', { class: 'btn', type: 'button' }, 'Continuar editando');
+        var drop = el('button', { class: 'btn', type: 'button' }, 'Cerrar sin guardar');
+        var saveAndClose = el('button', { class: 'btn primary', type: 'button' }, 'Guardar borrador y cerrar');
+        footD.appendChild(keep); footD.appendChild(drop); footD.appendChild(saveAndClose);
+        modalD.appendChild(footD);
+        ov.appendChild(modalD);
+        document.body.appendChild(ov);
+        function closeD(){ ov.remove(); }
+        keep.addEventListener('click', closeD);
+        drop.addEventListener('click', function(){ try{localStorage.removeItem(dk);}catch(e){} closeD(); closeModal(true); });
+        saveAndClose.addEventListener('click', function(){ try{ MODAL._prodDraft && MODAL._prodDraft.save && MODAL._prodDraft.save(); }catch(e){} closeD(); closeModal(true); });
+        ov.addEventListener('mousedown', function(e){ if(e.target===ov) closeD(); });
+        setTimeout(function(){ keep.focus(); }, 0);
+        return;
+      }
+      confirmDiscard(closeModal);
+      return;
+    }
     closeModal();
   }
   function closeModal(force) {
@@ -487,6 +536,10 @@
       rows.map(function (r) { return cols.map(function (c) { return cell(c.v(r)); }).join(','); }).join('\n');
   }
   var SEARCH_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+var VIEW_ICO = {
+  cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>'
+};
 
   function filterRows(rows, q, fields) {
     if (!q) return rows;
@@ -508,8 +561,9 @@
       }).join('') + '</select>';
     });
     h += '<span class="toolbar-spacer"></span>';
+    if (o.extra) h += o.extra;
     (o.buttons || []).forEach(function (b) {
-      h += '<button class="btn ' + (b.class || '') + '"' + (b.id ? ' id="' + b.id + '"' : '') + '>' + esc(b.label) + '</button>';
+      h += '<button class="btn ' + (b.class || '') + '"' + (b.id ? ' id="' + b.id + '"' : '') + (b.attrs || '') + '>' + (b.html || esc(b.label)) + '</button>';
     });
     h += '</div>';
     if (o.countId) h += '<div class="list-count" id="' + o.countId + '">' + (o.countText || '') + '</div>';
@@ -567,7 +621,7 @@
     var id = 'f_' + f.k;
     var wide = (f.t === 'image' || f.t === 'gallery' || f.t === 'textarea' || f.t === 'specs');
     var h = '<div class="field' + (wide ? ' full' : '') + '" data-field="' + f.k + '"><label for="' + id + '">' + esc(f.l) +
-      (f.req ? ' *' : '') + '</label>';
+      (f.req ? ' <span class="req" aria-hidden="true">*</span>' : '') + '</label>';
     if (f.t === 'bool') {
       h += '<div class="check"><input type="checkbox" id="' + id + '" data-k="' + f.k + '"' + (val ? ' checked' : '') + '><span>Activado</span></div>';
     } else if (f.t === 'textarea') {
@@ -575,11 +629,14 @@
     } else if (f.t === 'color') {
       h += '<div style="display:flex;gap:10px;align-items:center"><input type="color" id="' + id + '" data-k="' + f.k + '" value="' + esc(val || '#7c3aed') + '"><input type="text" data-for="' + f.k + '" value="' + esc(val) + '"></div>';
     } else if (f.t === 'image') {
-      h += '<div class="img-drop" data-drop="' + f.k + '">' +
-        '<img class="thumb" data-prev="' + f.k + '" src="' + esc(SB.resolveImage(val, 96)) + '" style="width:56px;height:56px' + (val ? '' : ';visibility:hidden') + '">' +
+      h += '<div class="img-drop' + (val ? ' has-img' : '') + '" data-drop="' + f.k + '">' +
+        '<img class="thumb" data-prev="' + f.k + '" src="' + esc(val ? SB.resolveImage(val, 160) : '') + '" alt="">' +
         '<input type="hidden" data-k="' + f.k + '" value="' + esc(val) + '">' +
-        '<div class="img-drop-info"><input type="file" accept="image/*" data-upload="' + f.k + '"><span class="help">Arrastra una imagen aquí o elige un archivo</span></div>' +
-        '<button type="button" class="btn sm ghost" data-clear="' + f.k + '">Quitar</button></div>';
+        '<div class="img-drop-info">' +
+          '<input type="file" accept="image/*" data-upload="' + f.k + '" aria-label="Subir ' + esc(f.l) + '">' +
+          '<span class="help">Arrastra una imagen aquí o elige un archivo.</span>' +
+          '<button type="button" class="btn sm ghost" data-clear="' + f.k + '"' + (val ? '' : ' disabled') + '>Quitar imagen</button>' +
+        '</div></div>';
     } else if (f.t === 'gallery') {
       var gval = Array.isArray(val) ? val.join('\n') : (val || '');
       h += '<div class="gallery-field">' +
@@ -690,6 +747,12 @@
       return SB.upload('catalog', file).then(function (url) {
         root.querySelector('input[type=hidden][data-k="' + k + '"]').value = url;
         if (prev) { prev.src = url; prev.style.visibility = ''; }
+        var zone = root.querySelector('[data-drop="' + k + '"]');
+        if (zone) {
+          zone.classList.add('has-img');
+          var clr = zone.querySelector('[data-clear]');
+          if (clr) clr.disabled = false;
+        }
         toast('Imagen subida', 'ok');
         return url;
       }).catch(function (e) { toast('Error: ' + e.message, 'err'); })
@@ -704,6 +767,11 @@
     // zona drag & drop de imagen
     $all('[data-drop]', root).forEach(function (zone) {
       var k = zone.dataset.drop;
+      zone.addEventListener('click', function (e) {
+        if (e.target.closest('input, button')) return;
+        var fileIn = zone.querySelector('input[type=file]');
+        if (fileIn) fileIn.click();
+      });
       zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('over'); });
       zone.addEventListener('dragleave', function () { zone.classList.remove('over'); });
       zone.addEventListener('drop', function (e) {
@@ -718,6 +786,9 @@
         root.querySelector('input[type=hidden][data-k="' + k + '"]').value = '';
         var prev = root.querySelector('[data-prev="' + k + '"]');
         if (prev) { prev.removeAttribute('src'); prev.style.visibility = 'hidden'; }
+        var zone = root.querySelector('[data-drop="' + k + '"]');
+        if (zone) zone.classList.remove('has-img');
+        btn.disabled = true;
       });
     });
     // galería: chips reordenables + subida múltiple
@@ -822,31 +893,40 @@
     var values = opts.values || {};
     var allFields = flattenFields(steps);
     var cur = 0;
-    // Al editar (freeNav) se desbloquean todos los pasos desde el inicio.
     var maxStep = opts.freeNav ? steps.length - 1 : 0;
     var formState = {};
     var single = steps.length <= 1;
+    var horizontal = !!opts.horizontalSteps && !single;
 
     var stepsHtml = steps.map(function (s, i) {
       var hasFields = Array.isArray(s.fields);
       var body = s.review ? (opts.reviewHtml || '') :
         (hasFields ? '<div class="fgrid">' + renderForm(s.fields, values) + '</div>' : (s.html || ''));
-      var head = (s.title && !single)
+      var head = (s.title && !single && !horizontal)
         ? '<div class="fstep-head"><h4>' + esc(s.title) + '</h4>' + (s.sub ? '<p>' + esc(s.sub) + '</p>' : '') + '</div>'
         : '';
       return '<section class="fstep" data-step="' + i + '"' + (i ? ' hidden' : '') + '>' + head + body + '</section>';
     }).join('');
 
-    var stepper = single ? '' : '<div class="wiz-steps">' + steps.map(function (s, i) {
-      return '<button type="button" class="wiz-dot" data-goto="' + i + '">' +
-        '<span class="wiz-num">' + (i + 1) + '</span>' +
-        '<span class="wiz-lbl">' + esc(s.short || s.title || ('Paso ' + (i + 1))) + '</span></button>';
-    }).join('') + '</div>';
+    var stepper = single ? '' : (horizontal
+      ? '<div class="wiz-steps-h"><div class="wiz-steps-h-track">' + steps.map(function (s, i) {
+          return '<button type="button" class="wiz-pill" data-goto="' + i + '">' +
+            '<span class="wiz-pill-num">' + (i + 1) + '</span>' +
+            '<span class="wiz-pill-txt"><span class="wiz-pill-title">' + esc(s.short || s.title || ('Paso ' + (i + 1))) + '</span>' +
+            (s.sub ? '<span class="wiz-pill-sub">' + esc(s.sub) + '</span>' : '') + '</span>' +
+          '</button>';
+        }).join('') + '</div></div>'
+      : '<div class="wiz-steps">' + steps.map(function (s, i) {
+          return '<button type="button" class="wiz-dot" data-goto="' + i + '">' +
+            '<span class="wiz-num">' + (i + 1) + '</span>' +
+            '<span class="wiz-lbl">' + esc(s.short || s.title || ('Paso ' + (i + 1))) + '</span></button>';
+        }).join('') + '</div>');
 
     var m = openModal({
       title: opts.title,
+      size: opts.size || (horizontal ? 'fullscreen' : (steps.length > 2 ? 'lg' : '')),
       guard: opts.guard !== false,
-      body: '<form id="entForm" novalidate><div class="wiz' + (single ? ' single' : '') + '">' +
+      body: '<form id="entForm" novalidate><div class="wiz' + (single ? ' single' : '') + (horizontal ? ' horizontal' : '') + '">' +
         stepper + '<div class="wiz-body">' + stepsHtml + '</div></div></form>',
       buttons: opts.buttons
     });
@@ -883,14 +963,27 @@
 
     function show(i) {
       $all('.fstep', m.body).forEach(function (el) { el.hidden = Number(el.dataset.step) !== i; });
-      $all('.wiz-dot', m.body).forEach(function (d) {
-        var n = Number(d.dataset.goto);
-        d.classList.toggle('active', n === i);
-        d.classList.toggle('done', n < i);
-        d.disabled = n > maxStep;
-      });
-      if (h3 && !single) h3.textContent = opts.title + ' · Paso ' + (i + 1) + ' de ' + steps.length;
+      if (horizontal) {
+        $all('.wiz-pill', m.body).forEach(function (d) {
+          var n = Number(d.dataset.goto);
+          d.classList.toggle('active', n === i);
+          d.classList.toggle('done', n < i);
+          d.disabled = n > maxStep;
+          d.setAttribute('aria-selected', String(n === i));
+        });
+      } else {
+        $all('.wiz-dot', m.body).forEach(function (d) {
+          var n = Number(d.dataset.goto);
+          d.classList.toggle('active', n === i);
+          d.classList.toggle('done', n < i);
+          d.disabled = n > maxStep;
+        });
+      }
+      if (h3 && !single) h3.textContent = opts.title;
+      m.body.scrollTop = 0;
       syncFooter();
+      var activeDot = horizontal ? $('.wiz-pill.active', m.body) : $('.wiz-dot.active', m.body);
+      if (activeDot && activeDot.scrollIntoView) activeDot.scrollIntoView({ block: 'nearest', inline: 'center' });
       var sec = stepEl(i);
       var target = sec && sec.querySelector('input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea');
       if (target && !steps[i].review) target.focus();
@@ -906,11 +999,11 @@
         if (cur < steps.length - 1) {
           specs.push({ label: 'Siguiente →', class: 'primary', onClick: function () { if (validateStep(cur)) go(cur + 1); } });
         } else {
-          specs.push({ label: opts.saveLabel || 'Guardar', class: 'primary', onClick: doSave });
+          specs.push({ label: opts.saveLabel || 'Guardar', class: 'primary', onClick: doSave, attrs: { title: 'Guardar (Ctrl + Enter)' } });
         }
       } else {
         specs.push({ spacer: true });
-        specs.push({ label: opts.saveLabel || 'Guardar', class: 'primary', onClick: doSave });
+        specs.push({ label: opts.saveLabel || 'Guardar', class: 'primary', onClick: doSave, attrs: { title: 'Guardar (Ctrl + Enter)' } });
       }
       fillFooter(foot, specs);
     }
@@ -929,12 +1022,14 @@
     function advance() { if (cur < steps.length - 1) { if (validateStep(cur)) go(cur + 1); } else doSave(); }
 
     // Navegación por los puntos del stepper (solo hasta el paso más lejano alcanzado).
-    $all('.wiz-dot', m.body).forEach(function (d) {
+    $all(horizontal ? '.wiz-pill' : '.wiz-dot', m.body).forEach(function (d) {
       d.addEventListener('click', function () { var n = Number(d.dataset.goto); if (n <= maxStep) go(n); });
     });
     // Enter avanza de paso (no en textarea ni en inputs de archivo).
     m.body.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' || single) return;
+      if (e.key !== 'Enter') return;
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); doSave(); return; }
+      if (single) return;
       var t = e.target;
       if ((t.tagName === 'INPUT' && t.type !== 'file') || t.tagName === 'SELECT') { e.preventDefault(); advance(); }
     });
@@ -953,17 +1048,20 @@
       var badge = typeof v.badge === 'string' ? v.badge : '';
       var specs = Array.isArray(v.specs) ? v.specs.filter(function (s) { return s.k || s.v; }).length : 0;
       host.innerHTML =
-        '<div class="pcard">' +
-          '<div class="pcard-img">' +
-            (v.image ? '<img src="' + esc(SB.resolveImage(v.image, 480)) + '" alt="">' : '<div class="pcard-ph">Sin imagen</div>') +
-            (badge ? '<span class="pcard-badge">' + esc(badge) + '</span>' : '') +
-            (v.hidden ? '<span class="pcard-hidden">Oculto</span>' : '') +
-          '</div>' +
-          '<div class="pcard-body">' +
-            '<div class="pcard-name">' + esc(v.name || 'Nombre del producto') + '</div>' +
-            (v.sub ? '<div class="pcard-sub">' + esc(v.sub) + '</div>' : '') +
-            '<div class="pcard-meta"><span class="pcard-price"><span class="cur">$</span><strong>' + esc(Number(v.price) || 0) + '</strong></span>' +
-              (v.category_id ? '<span class="pcard-cat">' + esc(refName('categories', v.category_id)) + '</span>' : '') + '</div>' +
+        '<div class="review-preview">' +
+          '<span class="review-preview-label">Vista previa en la tienda</span>' +
+          '<div class="pcard">' +
+            '<div class="pcard-img">' +
+              (v.image ? '<img src="' + esc(SB.resolveImage(v.image, 480)) + '" alt="">' : '<div class="pcard-ph">Sin imagen</div>') +
+              (badge ? '<span class="pcard-badge">' + esc(badge) + '</span>' : '') +
+              (v.hidden ? '<span class="pcard-hidden">Oculto</span>' : '') +
+            '</div>' +
+            '<div class="pcard-body">' +
+              '<div class="pcard-name">' + esc(v.name || 'Nombre del producto') + '</div>' +
+              (v.sub ? '<div class="pcard-sub">' + esc(v.sub) + '</div>' : '') +
+              '<div class="pcard-meta"><span class="pcard-price"><strong>' + esc(money(v.price)) + '</strong></span>' +
+                (v.category_id ? '<span class="pcard-cat">' + esc(refName('categories', v.category_id)) + '</span>' : '') + '</div>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<ul class="review-list">' +
@@ -1196,11 +1294,14 @@
 
         function openEditor(row) {
           if (ent.steps) {
+            var isProdEnt = key === 'products';
             openFormWizard({
               title: (row ? 'Editar ' : 'Nuevo ') + ent.title.toLowerCase(),
               steps: buildSteps(ent.fields, ent.steps),
               values: row || { position: rows.length },
               freeNav: !!row,
+              horizontalSteps: isProdEnt,
+              size: isProdEnt ? 'fullscreen' : undefined,
               onSave: function (data) {
                 if (!row) data.store_id = sid();
                 var p = row ? SB.update(key, { id: 'eq.' + row.id }, data) : SB.insert(key, data);
@@ -1250,28 +1351,28 @@
   var PRODUCT_BADGES = ['', 'Top Ventas', 'Destacado', 'Nuevo', 'Oferta', 'Popular'];
 
   var PRODUCT_FIELDS = [
-    { k: 'name', l: 'Nombre', req: true, step: 0 },
-    { k: 'sub', l: 'Subtítulo (tarjeta)', step: 0 },
-    { k: 'badge', l: 'Etiqueta', t: 'badge', step: 0 },
-    { k: 'price', l: 'Precio', t: 'money', req: true, step: 1 },
-    { k: 'original_price', l: 'Precio anterior (oferta)', t: 'money', step: 1 },
-    { k: 'position', l: 'Posición', t: 'number', step: 1 },
-    { k: 'image', l: 'Imagen principal', t: 'image', step: 2 },
-    { k: 'images', l: 'Galería', t: 'gallery', step: 2 },
-    { k: 'description', l: 'Descripción', t: 'textarea', help: 'Se muestra en la ficha del producto. Si la dejas vacía, la sección "Descripción" no aparece en la tienda.', step: 2 },
-    { k: 'specs', l: 'Especificaciones técnicas', t: 'specs', help: 'Filas clave/valor de la ficha (Garantía, Condición, Envío…). Si no agregas filas, la sección no aparece.', step: 2 },
+    { k: 'name', l: 'Nombre del producto', req: true, step: 0 },
+    { k: 'sub', l: 'Subtítulo para la tarjeta', step: 0 },
+    { k: 'badge', l: 'Etiqueta promocional', t: 'badge', step: 0 },
+    { k: 'price', l: 'Precio de venta', t: 'money', req: true, step: 1 },
+    { k: 'original_price', l: 'Precio anterior (tachado)', t: 'money', step: 1, help: 'Se muestra solo si es mayor al precio de venta.' },
+    { k: 'position', l: 'Orden en listado', t: 'number', step: 1 },
+    { k: 'image', l: 'Imagen principal', t: 'image', step: 2, help: 'Recomendado 800x800 px o superior. Formato JPG/WEBP/PNG.' },
+    { k: 'images', l: 'Galería de imágenes', t: 'gallery', step: 2, help: 'Añade varias vistas del producto. Puedes reordenarlas arrastrando.' },
+    { k: 'description', l: 'Descripción del producto', t: 'textarea', help: 'Se muestra en la ficha. Si se deja vacío, no aparece.', step: 2 },
+    { k: 'specs', l: 'Especificaciones técnicas', t: 'specs', help: 'Clave/valor. Usa nombres claros: Marca, Modelo, Garantía, etc.', step: 2 },
     { k: 'category_id', l: 'Categoría', t: 'ref', ref: 'categories', step: 3 },
     { k: 'subcategory_id', l: 'Subcategoría', t: 'ref', ref: 'subcategories', step: 3 },
-    { k: 'featured', l: 'Destacado', t: 'bool', step: 3 },
-    { k: 'hidden', l: 'Oculto', t: 'bool', step: 3 }
+    { k: 'featured', l: 'Destacar en inicio', t: 'bool', step: 3 },
+    { k: 'hidden', l: 'Ocultar en tienda', t: 'bool', step: 3 }
   ];
 
   // Metadatos de los pasos del asistente (agrupan PRODUCT_FIELDS por .step).
   var PRODUCT_STEPS = [
-    { title: 'Identidad', short: 'Identidad', sub: 'Cómo se llama y se presenta el producto.' },
-    { title: 'Precio', short: 'Precio', sub: 'Precio de venta y precio anterior (oferta).' },
-    { title: 'Imágenes y ficha', short: 'Ficha', sub: 'Imagen principal, galería, descripción y especificaciones.' },
-    { title: 'Clasificación', short: 'Clasificar', sub: 'Categoría, destacado y visibilidad en la tienda.' }
+    { title: 'Identidad', short: 'Identidad', sub: 'Nombre, subtítulo y etiqueta.' },
+    { title: 'Precios', short: 'Precios', sub: 'Precio, oferta y orden.' },
+    { title: 'Imágenes y contenido', short: 'Contenido', sub: 'Foto principal, galería, descripción y fichas.' },
+    { title: 'Organización', short: 'Organizar', sub: 'Categorías y visibilidad.' }
   ];
 
   // Filas de especificaciones precargadas al crear un producto nuevo.
@@ -1307,7 +1408,7 @@
     { k: 'badge', l: 'Etiqueta', t: 'badge', step: 0 },
     { k: 'price', l: 'Precio', t: 'money', req: true, step: 1 },
     { k: 'position', l: 'Posición', t: 'number', step: 1 },
-    { k: 'image', l: 'Imagen (case)', t: 'image', step: 2 },
+    { k: 'image', l: 'Imagen base', t: 'image', step: 2, help: 'Fondo del compositor. Si la dejas vacía, al generar se usará la imagen de la primera pieza.' },
     { k: 'images', l: 'Galería (para la imagen del combo)', t: 'gallery', step: 2, help: 'Sube 1 o varias imágenes; luego podrás combinarlas en una sola desde “Piezas e imagen”.' },
     { k: 'category_id', l: 'Categoría', t: 'ref', ref: 'categories', step: 2 },
     { k: 'hidden', l: 'Oculto', t: 'bool', step: 2 }
@@ -1323,7 +1424,7 @@
     var noun = isCombo ? 'combo' : 'producto';
     tabKey = tabKey || (isCombo ? 'combos' : 'productos');
     var run = function () {
-    mount.innerHTML = skeleton(5);
+    mount.innerHTML = uiGet(tabKey, {}).view === 'table' ? skeleton(6) : productSkeleton();
     Promise.all([
       S.cache.categories ? null : load('categories', { select: '*', order: 'position.asc,id.asc' }),
       S.cache.subcategories ? null : load('subcategories', { select: '*', order: 'position.asc,id.asc' })
@@ -1338,6 +1439,10 @@
       var sel = {};
       if (PENDING[tabKey]) { for (var pk in PENDING[tabKey]) state[pk] = PENDING[tabKey][pk]; PENDING[tabKey] = null; }
       function persist() { uiSet(tabKey, { q: state.q, cat: state.cat, status: state.status, view: state.view, sort: state.sort }); }
+      function clearFilters() {
+        state.q = ''; state.cat = ''; state.status = ''; delete state.missing;
+        persist(); draw();
+      }
       draw();
 
       function catOptions() {
@@ -1385,8 +1490,11 @@
             { id: 'pSort', options: sortOptions() }
           ],
           countId: 'pCount',
+          extra: '<div class="view-toggle" role="group" aria-label="Vista">' +
+            '<button type="button" data-view="cards" aria-pressed="' + (state.view === 'cards') + '" aria-label="Vista de tarjetas" title="Tarjetas">' + VIEW_ICO.cards + '</button>' +
+            '<button type="button" data-view="table" aria-pressed="' + (state.view === 'table') + '" aria-label="Vista de lista" title="Lista">' + VIEW_ICO.table + '</button>' +
+            '</div>',
           buttons: [
-            { label: state.view === 'cards' ? 'Ver lista' : 'Ver tarjetas', id: 'viewBtn', class: 'ghost' },
             { label: 'Exportar CSV', id: 'csvBtn', class: 'ghost' },
             { label: '+ Nuevo', id: 'newBtn', class: 'primary' }
           ]
@@ -1401,10 +1509,13 @@
         $('#pCat', mount).addEventListener('change', function () { state.cat = this.value; persist(); renderBody(); });
         $('#pStatus', mount).addEventListener('change', function () { state.status = this.value; persist(); renderBody(); });
         $('#pSort', mount).addEventListener('change', function () { state.sort = this.value; persist(); renderBody(); });
-        $('#viewBtn', mount).addEventListener('click', function () {
-          state.view = state.view === 'cards' ? 'table' : 'cards';
-          this.textContent = state.view === 'cards' ? 'Ver lista' : 'Ver tarjetas';
-          persist(); renderBody();
+        $all('[data-view]', mount).forEach(function (b) {
+          b.addEventListener('click', function () {
+            if (state.view === b.dataset.view) return;
+            state.view = b.dataset.view; persist();
+            $all('[data-view]', mount).forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.view === state.view)); });
+            renderBody();
+          });
         });
         $('#newBtn', mount).addEventListener('click', function () { openEditor(null); });
         $('#csvBtn', mount).addEventListener('click', exportCsv);
@@ -1422,21 +1533,40 @@
       function renderBody() {
         var body = $('#pBody', mount);
         var view = visibleRows();
-        $('#pCount', mount).textContent = view.length + ' de ' + rows.length + ' ' + esc(title.toLowerCase());
+        var filtersOn = [state.q, state.cat, state.status, state.missing].filter(Boolean).length;
+        var hiddenN = rows.filter(function (r) { return !!r.hidden; }).length;
+        var count = $('#pCount', mount);
+        if (count) {
+          count.innerHTML = '<span class="list-count-txt">' + view.length + ' de ' + rows.length + ' ' + esc(title.toLowerCase()) +
+            ' <span class="count-sep">·</span> ' + hiddenN + ' oculto' + (hiddenN === 1 ? '' : 's') +
+            (filtersOn ? ' <span class="count-sep">·</span> filtros activos' : '') + '</span>' +
+            (filtersOn ? '<button type="button" class="link-btn" data-clear-filters>Limpiar filtros</button>' : '');
+          var cf = $('[data-clear-filters]', count);
+          if (cf) cf.addEventListener('click', clearFilters);
+        }
         updateBulk();
         if (!rows.length) {
-          body.innerHTML = emptyState('Sin ' + title.toLowerCase() + ' todavía', 'Añade tu primer ' + noun + ' para mostrarlo en la tienda.', 'Nuevo', 'emptyNew');
+          body.innerHTML = emptyState('Sin ' + title.toLowerCase() + ' todavía', 'Añade tu primer ' + noun + ' para mostrarlo en la tienda.', 'Nuevo', 'emptyNew', svgIcon(isCombo ? 'combos' : 'productos'));
           var eb = $('#emptyNew', body); if (eb) eb.addEventListener('click', function () { openEditor(null); });
           return;
         }
-        if (!view.length) { body.innerHTML = '<div class="card empty">Ningún ' + noun + ' coincide con los filtros.</div>'; return; }
+        if (!view.length) {
+          body.innerHTML = '<div class="card empty"><div class="empty-ico">' + SEARCH_ICO + '</div>' +
+            '<div class="empty-title">Sin resultados</div>' +
+            '<p class="muted">Ningún ' + noun + ' coincide con la búsqueda o los filtros.</p>' +
+            '<button type="button" class="btn sm" data-clear-filters>Limpiar filtros</button></div>';
+          var cb = $('[data-clear-filters]', body); if (cb) cb.addEventListener('click', clearFilters);
+          return;
+        }
 
         if (state.view === 'cards') {
           body.innerHTML = '<div class="pcard-grid">' + view.map(function (r) {
             var cat = refName('categories', r.category_id);
-            return '<div class="pcard' + (sel[r.id] ? ' picked' : '') + '" data-id="' + esc(r.id) + '">' +
+            return '<div class="pcard' + (sel[r.id] ? ' picked' : '') + (r.hidden ? ' is-hidden' : '') + '" data-id="' + esc(r.id) + '">' +
               '<label class="pcard-pick" title="Seleccionar"><input type="checkbox" data-sel="' + esc(r.id) + '"' + (sel[r.id] ? ' checked' : '') + '></label>' +
-              '<div class="pcard-img"><img src="' + esc(SB.resolveImage(r.image, 480)) + '" alt="" loading="lazy" decoding="async">' +
+              '<div class="pcard-img">' +
+                (r.image ? '<img src="' + esc(SB.resolveImage(r.image, 480)) + '" alt="" loading="lazy" decoding="async">' :
+                  '<span class="pcard-noimg">' + svgIcon(isCombo ? 'combos' : 'productos') + 'Sin imagen</span>') +
                 (r.badge ? '<span class="pcard-badge">' + esc(r.badge) + '</span>' : '') +
                 (r.hidden ? '<span class="pcard-hidden">Oculto</span>' : '') +
               '</div>' +
@@ -1444,7 +1574,7 @@
                 '<div class="pcard-name" title="' + esc(r.name) + '">' + esc(r.name) + '</div>' +
                 (r.sub ? '<div class="pcard-sub">' + esc(r.sub) + '</div>' : '') +
                 '<div class="pcard-meta">' +
-                  '<div class="pcard-price"><span class="cur">$</span><input class="inline-price" type="text" inputmode="decimal" data-price="' + esc(r.id) + '" value="' + esc(r.price) + '"></div>' +
+                  '<div class="pcard-price"><span class="cur">$</span><input class="inline-price" type="text" inputmode="decimal" aria-label="Precio de ' + esc(r.name) + '" data-price="' + esc(r.id) + '" value="' + esc(r.price) + '"></div>' +
                   (cat ? '<span class="pcard-cat">' + esc(cat) + '</span>' : '') +
                 '</div>' +
                 '<div class="pcard-actions icon-actions">' + productActions(r, isCombo) + '</div>' +
@@ -1452,7 +1582,7 @@
           }).join('') + '</div>';
         } else {
           var allChecked = view.length && view.every(function (r) { return sel[r.id]; });
-          body.innerHTML = '<div class="card" style="padding:0;overflow:auto"><table class="responsive' + (state.sort === 'position' ? ' sortable' : '') + '"><thead><tr>' +
+          body.innerHTML = '<div class="card p-table-wrap"><table class="responsive' + (state.sort === 'position' ? ' sortable' : '') + '"><thead><tr>' +
             '<th class="pick-h"><input type="checkbox" data-all' + (allChecked ? ' checked' : '') + ' title="Seleccionar todo"></th>' +
             (state.sort === 'position' ? '<th class="drag-h"></th>' : '') +
             '<th class="sort-th" data-sortkey="name">Nombre</th><th class="sort-th" data-sortkey="price">Precio</th>' +
@@ -1462,9 +1592,10 @@
               return '<tr data-id="' + esc(r.id) + '"' + (sel[r.id] ? ' class="picked"' : '') + '>' +
                 '<td class="pick-cell" data-label=""><input type="checkbox" data-sel="' + esc(r.id) + '"' + (sel[r.id] ? ' checked' : '') + '></td>' +
                 (state.sort === 'position' ? '<td class="drag-cell" data-label=""><span class="drag-handle" title="Arrastrar para ordenar">⠿</span></td>' : '') +
-                '<td data-label="Imagen"><img class="thumb" src="' + esc(SB.resolveImage(r.image, 96)) + '"></td>' +
+                '<td data-label="Imagen">' + (r.image ? '<img class="thumb" src="' + esc(SB.resolveImage(r.image, 96)) + '" alt="" loading="lazy" decoding="async">' :
+                  '<span class="thumb thumb-empty">' + svgIcon(isCombo ? 'combos' : 'productos') + '</span>') + '</td>' +
                 '<td data-label="Nombre"><strong>' + esc(r.name) + '</strong><div class="muted" style="font-size:12px">' + esc(r.sub || '') + '</div></td>' +
-                '<td data-label="Precio"><input class="inline-price" type="text" inputmode="decimal" data-price="' + esc(r.id) + '" value="' + esc(r.price) + '"></td>' +
+                '<td data-label="Precio"><input class="inline-price" type="text" inputmode="decimal" aria-label="Precio de ' + esc(r.name) + '" data-price="' + esc(r.id) + '" value="' + esc(r.price) + '"></td>' +
                 '<td data-label="Categoría">' + esc(refName('categories', r.category_id)) + '</td>' +
                 (isCombo ? '<td data-label="Piezas" class="muted">—</td>' : '') +
                 '<td data-label="Estado"><button class="tag ' + (r.hidden ? 'off' : 'on') + '" data-toggle="' + esc(r.id) + '">' + (r.hidden ? 'Oculto' : 'Visible') + '</button></td>' +
@@ -1484,6 +1615,10 @@
           var du = t.closest('[data-dup]'); if (du) { doDuplicate(du.dataset.dup); return; }
           var it = t.closest('[data-items]'); if (it) { openItemsEditor(it.dataset.items, reload); return; }
           var tg = t.closest('[data-toggle]'); if (tg) { toggleHidden(tg.dataset.toggle); return; }
+          var card = t.closest('.pcard');
+          if (card && !t.closest('input,button,select,label,a')) {
+            var row = byId(card.dataset.id); if (row) openEditor(row);
+          }
         };
         body.onchange = function (e) {
           var t = e.target;
@@ -1608,36 +1743,85 @@
       }
 
       function openEditor(row) {
+        var isProd = !isCombo;
         var values = row || { position: rows.length, price: 0, specs: isCombo ? [] : DEFAULT_PRODUCT_SPECS, description: isCombo ? '' : DEFAULT_PRODUCT_DESCRIPTION };
         var steps = buildSteps(fields, isCombo ? COMBO_STEPS : PRODUCT_STEPS);
         if (isCombo) {
           steps.push({ title: 'Textos del combo', short: 'Textos', sub: 'Líneas de CPU y etiqueta que aparecen en la tarjeta del combo.', html: comboMetaHtml(row) });
         }
-        steps.push({ title: 'Revisar', short: 'Revisar', sub: 'Así se verá la tarjeta en la tienda.', review: true });
-        openFormWizard({
-          title: (row ? 'Editar ' : 'Nuevo ') + noun,
-          steps: steps,
-          values: values,
-          freeNav: !!row,
-          reviewHtml: '<div class="review-pane" id="wizPreview"></div>',
-          onSave: function (data, m) {
-            data.type = type;
-            if (isCombo) {
-              data.meta = (row && row.meta) || {};
-              data.meta.cpu_line1 = val(m.body, 'cpu_line1');
-              data.meta.cpu_line2 = val(m.body, 'cpu_line2');
-              data.meta.tag = val(m.body, 'tag');
-              if (!data.category_id) data.category_id = null;
-            }
-            if (!row) data.store_id = sid();
-            var p = row ? SB.update('products', { id: 'eq.' + row.id }, data) : SB.insert('products', data);
-            return p.then(function () {
-              closeModal(); invalidate(); toast('Guardado', 'ok');
-              logActivity((row ? 'Editó ' : 'Creó ') + noun + ': ' + data.name);
-              reload();
-            }).catch(function (e) { toast(e.message, 'err'); });
+      if (!isProd) steps.push({ title: 'Revisar', short: 'Revisar', sub: 'Así se verá la tarjeta en la tienda.', review: true });
+
+      var draftKey = 'gh_product_draft_' + sid() + '_' + (row && row.id ? row.id : 'new');
+      try {
+        var saved = localStorage.getItem(draftKey);
+        if (saved) {
+          var d = JSON.parse(saved);
+          if (d && d.values) {
+            values = Object.assign({}, values, d.values);
+            if (Array.isArray(d.values.specs)) values.specs = d.values.specs;
+            if (d.values.description !== undefined) values.description = d.values.description;
+            toast('Borrador restaurado', 'ok');
           }
-        });
+        }
+      } catch (e) {}
+
+      var wiz = openFormWizard({
+        title: (row ? 'Editar ' : 'Nuevo ') + noun,
+        saveLabel: row ? 'Guardar cambios' : 'Crear ' + noun,
+        steps: steps,
+        values: values,
+        freeNav: !!row,
+        horizontalSteps: isProd,
+        size: isProd ? 'fullscreen' : undefined,
+        reviewHtml: isProd ? '' : '<div class="review-pane" id="wizPreview"></div>',
+        guard: true,
+        onSave: function (data, m) {
+          data.type = type;
+          if (isCombo) {
+            data.meta = (row && row.meta) || {};
+            data.meta.cpu_line1 = val(m.body, 'cpu_line1');
+            data.meta.cpu_line2 = val(m.body, 'cpu_line2');
+            data.meta.tag = val(m.body, 'tag');
+            if (!data.category_id) data.category_id = null;
+          }
+          if (!row) data.store_id = sid();
+          var p = row ? SB.update('products', { id: 'eq.' + row.id }, data) : SB.insert('products', data);
+          return p.then(function () {
+            try { localStorage.removeItem(draftKey); } catch (e) {}
+            if (MODAL && MODAL._prodDraft) MODAL._prodDraft.clear();
+            if (MODAL) MODAL.dirty = false;
+            closeModal(); invalidate(); toast('Guardado', 'ok');
+            logActivity((row ? 'Editó ' : 'Creó ') + noun + ': ' + data.name);
+            reload();
+          }).catch(function (e) { toast(e.message, 'err'); });
+        }
+      });
+
+    if (isProd && wiz && wiz.body) {
+      var formEl = wiz.body.querySelector('#entForm');
+      var saving = null;
+      var hasUnsaved = false;
+      function saveDraft() {
+        try {
+          var flat = flattenFields(steps);
+          var v = readForm(flat, wiz.body);
+          localStorage.setItem(draftKey, JSON.stringify({ values: v, t: Date.now(), name: v.name || '' }));
+          hasUnsaved = true;
+        } catch (e) {}
+      }
+      function sched() { if (saving) clearTimeout(saving); saving = setTimeout(saveDraft, 400); }
+      if (formEl) {
+        formEl.addEventListener('input', sched);
+        formEl.addEventListener('change', sched);
+      }
+      setTimeout(saveDraft, 250);
+      var mo = MODAL;
+      if (mo) {
+        mo.guard = true;
+        mo.dirty = false;
+        mo._prodDraft = { key: draftKey, dirty: function(){ return hasUnsaved; }, save: saveDraft, clear: function(){ try{localStorage.removeItem(draftKey);}catch(e){} hasUnsaved=false; } };
+      }
+    }
       }
     }).catch(function (e) { errorState(mount, e, run); });
     };
@@ -1664,7 +1848,7 @@
     });
     var st = { prods: [], links: [], combo: null, layers: [], base: '', sources: [], tab: 'piezas', sel: -1 };
     Promise.all([
-      load('products', { select: 'id,name,type,price,image,hidden', order: 'name.asc' }),
+      load('products', { select: 'id,name,sub,type,price,image,hidden', order: 'name.asc' }),
       load('combo_items', { select: '*', combo_id: 'eq.' + comboId, order: 'position.asc' }),
       load('products', { select: 'id,name,image,images,meta,type', id: 'eq.' + comboId })
     ]).then(function (r) {
@@ -1673,17 +1857,22 @@
       st.combo = (r[2] && r[2][0]) || null;
       var meta = (st.combo && st.combo.meta) || {};
       st.layers = Array.isArray(meta.layers) ? meta.layers.slice() : [];
-      st.base = (st.combo && st.combo.image) || '';
+      st.base = meta.base !== undefined && meta.base !== null ? meta.base : ((st.combo && st.combo.image) || '');
       draw();
     }).catch(function (e) { m.body.innerHTML = '<div class="card empty">Error: ' + esc(e.message) + '</div>'; });
 
     function prodById(id) { for (var i = 0; i < st.prods.length; i++) if (String(st.prods[i].id) === String(id)) return st.prods[i]; return null; }
+    function pieceProduct(l) { return prodById(l.product_id) || { name: '(producto eliminado)', price: 0, image: '', hidden: true }; }
+    function pieceImgHtml(p, cls) {
+      return p.image ? '<img class="' + cls + '" src="' + esc(SB.resolveImage(p.image, 96)) + '" alt="">' :
+        '<span class="' + cls + ' piece-thumb-empty" aria-hidden="true">' + svgIcon('productos') + '</span>';
+    }
     function reloadLinks() {
       return load('combo_items', { select: '*', combo_id: 'eq.' + comboId, order: 'position.asc' }).then(function (rows) { st.links = rows || []; });
     }
     function saveLayers() {
       var meta = (st.combo && st.combo.meta) || {};
-      meta.layers = st.layers;
+      meta.layers = st.layers; meta.base = st.base;
       return SB.update('products', { id: 'eq.' + comboId }, { meta: meta }).then(function () { if (st.combo) st.combo.meta = meta; invalidate(); });
     }
 
@@ -1700,65 +1889,137 @@
 
     /* ---------------- Piezas ---------------- */
     function piezasHtml() {
-      var opts = st.prods.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.name) + ' — ' + money(p.price) + '</option>'; }).join('');
-      var list = st.links.length ? st.links.map(function (l, i) {
-        var p = prodById(l.product_id) || { name: '(producto eliminado)', price: 0, image: '' };
-        return '<div class="piece-row" data-l="' + esc(l.id) + '">' +
-          '<img class="piece-thumb" src="' + esc(SB.resolveImage(p.image, 80)) + '" alt="">' +
-          '<div class="piece-meta"><div class="piece-name">' + esc(p.name) + '</div>' +
-            '<div class="piece-sub">' + money(p.price) + (p.hidden ? ' · solo en el combo' : '') + '</div></div>' +
-          '<input class="piece-qty" type="number" min="1" data-qty="' + esc(l.id) + '" value="' + esc(l.qty) + '" title="Cantidad">' +
-          '<button type="button" class="act-btn" data-up="' + i + '" title="Subir"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-          '<button type="button" class="act-btn" data-down="' + i + '" title="Bajar"' + (i === st.links.length - 1 ? ' disabled' : '') + '>↓</button>' +
-          '<button type="button" class="act-btn act-del" data-rm="' + esc(l.id) + '" title="Quitar">' + ICO.trash + '</button>' +
-        '</div>';
-      }).join('') : '<p class="muted">Sin piezas todavía. Añade productos de la tienda o crea piezas nuevas.</p>';
+      var pickRows = st.prods.map(function (p) {
+        var qty = 0;
+        st.links.forEach(function (l) { if (String(l.product_id) === String(p.id)) qty += Number(l.qty) || 1; });
+        var search = (p.name + ' ' + (p.sub || '')).toLowerCase();
+        return '<button type="button" class="pick-row" data-pick="' + esc(p.id) + '" data-search="' + esc(search) + '">' +
+          pieceImgHtml(p, 'pick-thumb') +
+          '<span class="pick-meta"><span class="pick-name">' + esc(p.name) + '</span>' +
+            '<span class="pick-sub">' + money(p.price) + (p.hidden ? ' · Solo en el combo' : '') + '</span></span>' +
+          (qty ? '<span class="pick-count">×' + qty + '</span>' : '') +
+          '<span class="pick-add" aria-hidden="true">＋</span></button>';
+      }).join('') || '<p class="muted pad">No hay productos en la tienda todavía.</p>';
 
-      return '<div class="card pz"><h3>Productos del combo</h3>' +
-        '<p class="desc">Vende productos que ya tienes, o crea “piezas” que <strong>solo existen dentro de este combo</strong> (no se muestran en la tienda).</p>' +
-        '<div class="field"><label>Añadir producto de la tienda</label><div style="display:flex;gap:8px;flex-wrap:wrap">' +
-          '<select id="pickProd" style="flex:1;min-width:200px">' + opts + '</select>' +
-          '<input type="number" id="pickQty" value="1" min="1" style="width:70px">' +
-          '<button class="btn primary" id="addLink" type="button">Añadir</button></div></div>' +
-        '<details class="piece-new"><summary>＋ Crear pieza nueva (no se muestra en la tienda)</summary>' +
-          '<div class="fgrid" style="margin-top:10px">' +
-            '<div class="field"><label>Nombre</label><input type="text" id="npName" placeholder="Ej. Monitor 24&rdquo; 165Hz"></div>' +
-            '<div class="field"><label>Precio</label><input type="text" inputmode="decimal" id="npPrice" placeholder="0"></div>' +
-            '<div class="field full"><label>Imagen</label><input type="file" accept="image/*" id="npImg"></div>' +
-          '</div><button class="btn primary" id="createPiece" type="button">Crear y añadir</button></details>' +
+      var list = st.links.length ? st.links.map(function (l, i) {
+        var p = pieceProduct(l);
+        return '<div class="piece-row" data-l="' + esc(l.id) + '">' +
+          pieceImgHtml(p, 'piece-thumb') +
+          '<div class="piece-meta"><div class="piece-name">' + esc(p.name) + '</div>' +
+            '<div class="piece-sub">' + money(p.price) +
+              (p.hidden ? ' <span class="piece-tag">Solo en el combo</span>' : '') +
+              (!p.image ? ' · Sin imagen' : '') + '</div></div>' +
+          '<input class="piece-qty" type="number" min="1" inputmode="numeric" data-qty="' + esc(l.id) + '" value="' + esc(l.qty) + '" title="Cantidad" aria-label="Cantidad de ' + esc(p.name) + '">' +
+          '<div class="piece-actions">' +
+            '<button type="button" class="act-btn" data-up="' + i + '" title="Subir"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+            '<button type="button" class="act-btn" data-down="' + i + '" title="Bajar"' + (i === st.links.length - 1 ? ' disabled' : '') + '>↓</button>' +
+            '<button type="button" class="act-btn act-del" data-rm="' + esc(l.id) + '" title="Quitar">' + ICO.trash + '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') : '<p class="muted piece-empty">Sin piezas todavía. Añade un producto de la tienda o crea uno externo.</p>';
+
+      var units = st.links.reduce(function (n, l) { return n + (Number(l.qty) || 1); }, 0);
+      return '<div class="pz-grid">' +
+        '<div class="card pz pz-pick">' +
+          '<div class="pz-head"><div><h3>Productos de la tienda</h3>' +
+            '<p class="desc">Toca un producto para añadirlo. Si ya está en el combo, suma una unidad.</p></div>' +
+            '<span class="pz-count">' + st.prods.length + '</span></div>' +
+          '<div class="search-box">' + SEARCH_ICO + '<input type="search" id="pickSearch" placeholder="Buscar producto…" autocomplete="off" aria-label="Buscar producto"></div>' +
+          '<div class="pick-list" id="pickList">' + pickRows + '</div>' +
+          '<p class="muted pz-none" id="pickNone" hidden>Ningún producto coincide con la búsqueda.</p>' +
         '</div>' +
-        '<div class="card pz"><h3>Piezas (' + st.links.length + ')</h3><div class="piece-list">' + list + '</div></div>';
+        '<div class="card pz pz-new">' +
+          '<h3>Producto externo</h3>' +
+          '<p class="desc">Si no está en la tienda, créalo aquí con <strong>nombre e imagen</strong>. Solo se verá como pieza de este combo.</p>' +
+          '<div class="fgrid ext-form">' +
+            '<div class="field full"><label for="npName">Nombre <span class="req">*</span></label><input type="text" id="npName" placeholder="Ej. Monitor 24&rdquo; 165 Hz" autocomplete="off"></div>' +
+            '<div class="field full"><label for="npPrice">Precio (opcional)</label><div class="money-wrap"><span class="money-cur">$</span><input class="money-input" type="text" inputmode="decimal" id="npPrice" placeholder="0"></div></div>' +
+            '<div class="field full mb0"><label for="npImg">Imagen <span class="req">*</span></label>' +
+              '<div class="img-drop" id="npDrop"><img class="thumb" id="npPrev" alt="">' +
+                '<div class="img-drop-info"><input type="file" accept="image/*" id="npImg" aria-label="Imagen del producto externo">' +
+                '<span class="help">Arrastra una imagen o elige un archivo.</span></div></div></div>' +
+          '</div>' +
+          '<button class="btn primary pz-create" id="createPiece" type="button">Crear y añadir al combo</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card pz pz-selected"><div class="pz-head"><div>' +
+        '<h3>Piezas del combo <span class="pz-count">' + st.links.length + '</span></h3>' +
+        '<p class="desc">' + (units ? units + ' unidad(es) en total. Usa las flechas para ordenar.' : 'Aún no hay piezas.') + '</p></div></div>' +
+        '<div class="piece-list">' + list + '</div></div>';
     }
     function wirePiezas() {
-      var add = $('#addLink', m.body);
-      if (add) add.addEventListener('click', function () {
-        var pid = $('#pickProd', m.body).value; var qty = Number($('#pickQty', m.body).value) || 1;
-        if (!pid) return;
-        add.disabled = true;
-        SB.insert('combo_items', { combo_id: Number(comboId), product_id: Number(pid), qty: qty, position: st.links.length, store_id: sid() })
-          .then(reloadLinks).then(function () { invalidate(); draw(); toast('Añadido', 'ok'); })
-          .catch(function (e) { toast(e.message, 'err'); add.disabled = false; });
+      function addProduct(pid, qty) {
+        var existing = null;
+        st.links.forEach(function (l) { if (String(l.product_id) === String(pid)) existing = l; });
+        var pcall;
+        if (existing) {
+          pcall = SB.update('combo_items', { id: 'eq.' + existing.id }, { qty: (Number(existing.qty) || 1) + (qty || 1) });
+        } else {
+          pcall = SB.insert('combo_items', { combo_id: Number(comboId), product_id: Number(pid), qty: qty || 1, position: st.links.length, store_id: sid() });
+        }
+        return pcall.then(reloadLinks).then(function () { invalidate(); draw(); toast(existing ? 'Cantidad actualizada' : 'Añadido al combo', 'ok'); });
+      }
+      $all('[data-pick]', m.body).forEach(function (b) {
+        b.addEventListener('click', function () {
+          b.disabled = true;
+          addProduct(b.dataset.pick, 1).catch(function (e) { toast(e.message, 'err'); b.disabled = false; });
+        });
       });
+      var search = $('#pickSearch', m.body);
+      if (search) search.addEventListener('input', function () {
+        var q = this.value.trim().toLowerCase(), shown = 0;
+        $all('[data-pick]', m.body).forEach(function (row) {
+          var ok = !q || (row.dataset.search || '').indexOf(q) !== -1;
+          row.hidden = !ok;
+          if (ok) shown++;
+        });
+        var none = $('#pickNone', m.body); if (none) none.hidden = shown > 0;
+      });
+
+      var npImg = $('#npImg', m.body), prev = $('#npPrev', m.body), drop = $('#npDrop', m.body), picked = null;
+      function preview(file) {
+        picked = file || null;
+        if (prev) {
+          try { if (prev.dataset.url) URL.revokeObjectURL(prev.dataset.url); } catch (e) {}
+          if (file) { var u = URL.createObjectURL(file); prev.src = u; prev.dataset.url = u; } else { prev.removeAttribute('src'); }
+        }
+        if (drop) { drop.classList.toggle('has-img', !!file); if (file) drop.classList.remove('missing'); }
+      }
+      if (npImg) npImg.addEventListener('change', function () { preview(npImg.files[0]); });
+      if (drop) {
+        drop.addEventListener('click', function (e) { if (e.target.closest('input,button')) return; if (npImg) npImg.click(); });
+        drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('drag'); });
+        drop.addEventListener('dragleave', function () { drop.classList.remove('drag'); });
+        drop.addEventListener('drop', function (e) {
+          e.preventDefault(); drop.classList.remove('drag');
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f && /^image\//.test(f.type)) preview(f);
+        });
+      }
+
       var create = $('#createPiece', m.body);
       if (create) create.addEventListener('click', function () {
-        var name = $('#npName', m.body).value.trim(); var price = parseFloat($('#npPrice', m.body).value) || 0;
-        var file = $('#npImg', m.body).files[0];
-        if (!name) return toast('Ponle nombre a la pieza', 'err');
+        var nameEl = $('#npName', m.body);
+        var name = (nameEl.value || '').trim();
+        var price = parseFloat(($('#npPrice', m.body).value || '').replace(',', '.')) || 0;
+        var file = picked || (npImg && npImg.files[0]);
+        if (!name) { nameEl.focus(); return toast('Ponle nombre al producto externo', 'err'); }
+        if (!file) { if (drop) drop.classList.add('missing'); return toast('Añade una imagen para el producto externo', 'err'); }
         create.disabled = true;
-        var up = file ? SB.upload('catalog', file) : Promise.resolve('');
-        up.then(function (url) {
-          return SB.insert('products', { store_id: sid(), type: 'product', name: name, price: price, image: url || '', hidden: true, position: 0 });
+        SB.upload('catalog', file).then(function (url) {
+          return SB.insert('products', { store_id: sid(), type: 'product', name: name, price: price, image: url, hidden: true, position: 0 });
         }).then(function (rows) {
           var pid = Array.isArray(rows) && rows[0] ? rows[0].id : rows && rows.id;
           return SB.insert('combo_items', { combo_id: Number(comboId), product_id: Number(pid), qty: 1, position: st.links.length, store_id: sid() });
-        }).then(function () { return load('products', { select: 'id,name,type,price,image,hidden', order: 'name.asc' }); })
+        }).then(function () { return load('products', { select: 'id,name,sub,type,price,image,hidden', order: 'name.asc' }); })
           .then(function (r0) { st.prods = (r0 || []).filter(function (p) { return p.type !== 'combo'; }); return reloadLinks(); })
-          .then(function () { invalidate(); draw(); toast('Pieza creada', 'ok'); })
+          .then(function () { invalidate(); draw(); toast('Producto externo añadido', 'ok'); })
           .catch(function (e) { toast(e.message, 'err'); create.disabled = false; });
       });
       $all('[data-qty]', m.body).forEach(function (inp) {
         inp.addEventListener('change', function () {
           var q = Math.max(1, Number(inp.value) || 1);
+          inp.value = q;
           SB.update('combo_items', { id: 'eq.' + inp.dataset.qty }, { qty: q }).then(function () { toast('Cantidad actualizada', 'ok'); }).catch(function (e) { toast(e.message, 'err'); });
         });
       });
@@ -1781,24 +2042,61 @@
 
     /* ---------------- Imagen (compositor por capas) ---------------- */
     function buildSources() {
-      var out = [];
-      if (st.base) out.push({ src: st.base, label: 'Imagen principal', isBase: true });
-      (st.combo && st.combo.images || []).forEach(function (u) { if (u && u !== st.base) out.push({ src: u, label: 'Galería' }); });
-      st.links.forEach(function (l) { var p = prodById(l.product_id); if (p && p.image && p.image !== st.base) out.push({ src: p.image, label: p.name, product_id: p.id }); });
+      var out = [], seen = {};
+      function add(src, label, extra) {
+        if (!src || seen[src]) return;
+        seen[src] = 1;
+        var o = { src: src, label: label };
+        if (extra) for (var k in extra) o[k] = extra[k];
+        out.push(o);
+      }
+      if (st.base) add(st.base, 'Imagen principal', { isBase: true });
+      (st.combo && st.combo.images || []).forEach(function (u) { add(u, 'Galería'); });
+      st.links.forEach(function (l) {
+        var p = prodById(l.product_id);
+        if (p && p.image) add(p.image, p.name + ((Number(l.qty) || 1) > 1 ? ' ×' + l.qty : ''), { product_id: p.id });
+      });
       st.sources = out;
       return out;
     }
+    function pieceImages() {
+      var out = [], seen = {};
+      st.links.forEach(function (l) {
+        var p = prodById(l.product_id);
+        if (p && p.image && !seen[p.image]) { seen[p.image] = 1; out.push(p); }
+      });
+      return out;
+    }
+    function autoArrangePieces() {
+      var items = pieceImages().filter(function (p) { return p.image !== st.base; });
+      if (!items.length) return 0;
+      var cols = items.length <= 2 ? items.length : (items.length <= 4 ? 2 : 3);
+      var rows = Math.ceil(items.length / cols);
+      var w = cols === 1 ? 46 : Math.floor(78 / cols);
+      var x0 = (100 - cols * w) / 2;
+      var y0 = rows > 1 ? 22 : 30;
+      var stepY = rows > 1 ? Math.min(34, (72 - y0) / (rows - 1)) : 0;
+      st.layers = items.map(function (p, i) {
+        var col = i % cols, row = Math.floor(i / cols);
+        return { src: p.image, x: Math.round(x0 + col * w), y: Math.round(y0 + row * stepY), w: w, z: i + 1, product_id: p.id, label: p.name };
+      });
+      st.sel = -1;
+      return st.layers.length;
+    }
     function imagenHtml() {
       var srcs = buildSources();
+      var withImg = st.links.filter(function (l) { var p = prodById(l.product_id); return !!(p && p.image); }).length;
+      var missing = st.links.length - withImg;
       var srcHtml = srcs.length ? srcs.map(function (s, i) {
-        return '<div class="src-chip"><img src="' + esc(SB.resolveImage(s.src, 80)) + '" alt="">' +
-          '<span>' + esc(s.label) + '</span>' +
-          '<button type="button" class="btn sm" data-addsrc="' + i + '">＋ capa</button>' +
-          (s.isBase ? '' : '<button type="button" class="btn sm ghost" data-setbase="' + i + '">Base</button>') + '</div>';
+        return '<div class="src-chip"><img src="' + esc(SB.resolveImage(s.src, 96)) + '" alt="">' +
+          '<span class="src-label">' + esc(s.label) + '</span>' +
+          '<div class="src-actions"><button type="button" class="btn sm" data-addsrc="' + i + '">＋ Capa</button>' +
+          (s.isBase ? '<button type="button" class="btn sm ghost" data-clearbase>Quitar base</button>' :
+            '<button type="button" class="btn sm ghost" data-setbase="' + i + '">Usar base</button>') + '</div></div>';
       }).join('') : '<p class="muted">No hay imágenes. Sube imágenes en el paso “Clasificación” o añade piezas con imagen.</p>';
 
       var stage = '<div class="composer-stage" id="cStage">' +
-        (st.base ? '<img class="c-base" src="' + esc(SB.resolveImage(st.base, 720)) + '" alt="" draggable="false">' : '<div class="c-empty">Elige una imagen “Base”.</div>') +
+        (st.base ? '<img class="c-base" src="' + esc(SB.resolveImage(st.base, 720)) + '" alt="" draggable="false">' : '<div class="c-empty">Sin base · fondo blanco al generar</div>') +
         st.layers.map(function (L, i) {
           return '<img class="c-layer' + (st.sel === i ? ' sel' : '') + '" data-layer="' + i + '" draggable="false" src="' + esc(SB.resolveImage(L.src, 400)) + '" ' +
             'style="left:' + (Number(L.x) || 0) + '%;top:' + (Number(L.y) || 0) + '%;width:' + (Number(L.w) || 40) + '%;z-index:' + (Number(L.z) || 1) + '">';
@@ -1815,12 +2113,16 @@
           : '<span class="muted">Toca una capa en el lienzo para moverla, cambiar su tamaño u orden.</span>') +
         '</div>';
 
-      return '<div class="card"><h3>Compositor de imagen</h3>' +
-        '<p class="desc">La <strong>imagen principal</strong> es la base (ej. el case). Añade las piezas como capas encima, arrástralas sobre el lienzo, cámbiales el tamaño y el orden (z). Al terminar, genera una sola imagen.</p>' +
+      return '<div class="card"><h3>Imagen del combo</h3>' +
+        '<p class="desc">La <strong>imagen principal</strong> es la base opcional. Añade las piezas como capas, arrástralas sobre el lienzo y ajusta tamaño y orden. Si no colocas capas, se usarán todas las piezas con imagen. La imagen generada se aplica al combo en la tienda.</p>' +
+        '<div class="composer-pieces">' + (st.links.length ? '<span>' + st.links.length + ' pieza(s) en el combo</span>' +
+          (missing ? '<span class="warn">' + missing + ' sin imagen</span>' : '<span class="ok">Todas con imagen</span>') :
+          '<span>Sin piezas todavía</span>') + '</div>' +
         '<div class="composer"><div class="composer-aside"><div class="src-list">' + srcHtml + '</div></div>' +
         '<div class="composer-main">' + stage + ctrls +
-        '<div class="composer-actions"><button type="button" class="btn" id="saveLayers">Guardar disposición</button>' +
-        '<button type="button" class="btn primary" id="genImage">Generar imagen del combo</button></div></div></div></div>';
+        '<div class="composer-actions"><button type="button" class="btn" id="autoPieces" title="Reemplaza las capas actuales con las imágenes de las piezas">Colocar piezas</button>' +
+        '<button type="button" class="btn" id="saveLayers">Guardar borrador</button>' +
+        '<button type="button" class="btn primary" id="genImage">Generar y aplicar</button></div></div></div></div>';
     }
     function wireImagen() {
       var stage = $('#cStage', m.body);
@@ -1837,8 +2139,23 @@
         b.addEventListener('click', function () {
           var s = st.sources[Number(b.dataset.setbase)]; if (!s) return;
           st.base = s.src;
-          SB.update('products', { id: 'eq.' + comboId }, { image: s.src }).then(function () { invalidate(); toast('Base actualizada', 'ok'); draw(); }).catch(function (e) { toast(e.message, 'err'); });
+          var meta = (st.combo && st.combo.meta) || {};
+          meta.base = s.src;
+          SB.update('products', { id: 'eq.' + comboId }, { image: s.src, meta: meta }).then(function () {
+            if (st.combo) { st.combo.image = s.src; st.combo.meta = meta; }
+            invalidate(); toast('Base actualizada', 'ok'); draw();
+          }).catch(function (e) { toast(e.message, 'err'); });
         });
+      });
+      var clearBase = $('[data-clearbase]', m.body);
+      if (clearBase) clearBase.addEventListener('click', function () {
+        st.base = '';
+        var meta = (st.combo && st.combo.meta) || {};
+        meta.base = '';
+        SB.update('products', { id: 'eq.' + comboId }, { image: '', meta: meta }).then(function () {
+          if (st.combo) { st.combo.image = ''; st.combo.meta = meta; }
+          invalidate(); toast('Base quitada', 'ok'); draw();
+        }).catch(function (e) { toast(e.message, 'err'); });
       });
       stage.addEventListener('pointerdown', function (e) {
         var im = e.target.closest('[data-layer]'); if (!im) return;
@@ -1875,11 +2192,22 @@
         var rm = $('[data-rmlayer]', m.body); if (rm) rm.addEventListener('click', function () { if (st.sel < 0) return; st.layers.splice(st.sel, 1); st.sel = -1; draw(); });
       }
       bindControls();
+      var auto = $('#autoPieces', m.body);
+      if (auto) auto.addEventListener('click', function () {
+        var n = autoArrangePieces();
+        if (!n) return toast('Añade piezas con imagen para colocarlas', 'err');
+        draw(); toast(n + ' pieza(s) colocadas automáticamente', 'ok');
+      });
       var save = $('#saveLayers', m.body);
-      if (save) save.addEventListener('click', function () { save.disabled = true; saveLayers().then(function () { toast('Disposición guardada', 'ok'); save.disabled = false; }).catch(function (e) { toast(e.message, 'err'); save.disabled = false; }); });
+      if (save) save.addEventListener('click', function () { save.disabled = true; saveLayers().then(function () { toast('Borrador guardado. Genera la imagen para aplicarla.', 'ok'); save.disabled = false; }).catch(function (e) { toast(e.message, 'err'); save.disabled = false; }); });
       var gen = $('#genImage', m.body);
       if (gen) gen.addEventListener('click', function () {
-        if (!st.base) return toast('Elige una imagen base', 'err');
+        if (!st.base) {
+          var gallery = ((st.combo && st.combo.images) || []).filter(Boolean);
+          if (gallery.length) st.base = gallery[0];
+        }
+        if (!st.base && !pieceImages().length) return toast('Añade una imagen base o piezas con imagen', 'err');
+        if (!st.layers.length) autoArrangePieces();
         gen.disabled = true; toast('Generando imagen…');
         bakeImage(st.base, st.layers, function (blob, err) {
           if (!blob) { toast('No se pudo generar: ' + (err && err.message || 'error'), 'err'); gen.disabled = false; return; }
@@ -1887,9 +2215,11 @@
           SB.upload('catalog', file).then(function (url) {
             st.composite = url;
             var meta = (st.combo && st.combo.meta) || {};
-            meta.layers = st.layers; meta.composite = url;
-            return SB.update('products', { id: 'eq.' + comboId }, { meta: meta }).then(function () { if (st.combo) st.combo.meta = meta; });
-          }).then(function () { invalidate(); toast('Imagen del combo generada', 'ok'); draw(); })
+            meta.layers = st.layers; meta.base = st.base; meta.composite = url;
+            return SB.update('products', { id: 'eq.' + comboId }, { image: url, meta: meta }).then(function () {
+              if (st.combo) { st.combo.image = url; st.combo.meta = meta; }
+            });
+          }).then(function () { invalidate(); toast('Imagen generada y aplicada al combo', 'ok'); draw(); })
             .catch(function (e) { toast(e.message, 'err'); gen.disabled = false; });
         });
       });
@@ -2025,6 +2355,9 @@
   }
 
   function renderHome(mount) {
+    var pending = PENDING.home || null;
+    PENDING.home = null;
+    var startPane = (pending && pending.pane) || 'general';
     mount.innerHTML = '<div class="loading"><span class="spinner"></span> Cargando…</div>';
     getSettings().then(function (s) {
       var store = s.store || {}, hero = s.hero || {}, texts = s.texts || {}, sections = s.sections || [];
@@ -2077,10 +2410,11 @@
         { k: 'pagos', l: 'Pagos', html: cardPay },
         { k: 'mensajes', l: 'Mensajes', html: cardMsg1 + cardMsg2 + cardMsg3 }
       ];
+      if (!panes.some(function (p) { return p.k === startPane; })) startPane = 'general';
       var subnav = '<div class="subnav" role="tablist">' +
-        panes.map(function (p, i) { return '<button class="subnav-btn' + (i === 0 ? ' active' : '') + '" data-htab="' + p.k + '" type="button" role="tab">' + esc(p.l) + '</button>'; }).join('') +
+        panes.map(function (p) { return '<button class="subnav-btn' + (p.k === startPane ? ' active' : '') + '" data-htab="' + p.k + '" type="button" role="tab">' + esc(p.l) + '</button>'; }).join('') +
         '</div>';
-      var panesHtml = panes.map(function (p, i) { return '<div class="hpane" data-pane="' + p.k + '"' + (i ? ' hidden' : '') + '>' + p.html + '</div>'; }).join('');
+      var panesHtml = panes.map(function (p) { return '<div class="hpane" data-pane="' + p.k + '"' + (p.k === startPane ? '' : ' hidden') + '>' + p.html + '</div>'; }).join('');
       var html = '<form id="homeForm">' + subnav + panesHtml + '</form>';
       mount.innerHTML = html;
 
@@ -2223,7 +2557,19 @@
 
     function draw(themes, s) {
       var holiday = s.holiday || {};
-      var html = '<div class="card"><h3>Modo festivo</h3><p class="desc">Cuando está activo (y dentro de las fechas), anula el tema por defecto.</p>' +
+      var defTheme = ((s.store || {}).defaultTheme === 'dark') ? 'dark' : 'light';
+      var html = '<div class="card"><h3>Tema predeterminado de la tienda</h3>' +
+        '<p class="desc">Es el tema con el que abre la tienda la primera vez. Si el cliente pulsa el botón de modo oscuro, su elección se guarda en su navegador y se mantiene.</p>' +
+        '<div class="theme-default-choices">' +
+        '<button type="button" class="theme-default-btn' + (defTheme === 'light' ? ' active' : '') + '" data-default-theme="light" aria-pressed="' + (defTheme === 'light') + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>' +
+        '<span><strong>Claro</strong><em>Fondo blanco por defecto</em></span></button>' +
+        '<button type="button" class="theme-default-btn' + (defTheme === 'dark' ? ' active' : '') + '" data-default-theme="dark" aria-pressed="' + (defTheme === 'dark') + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' +
+        '<span><strong>Oscuro</strong><em>Fondo oscuro por defecto</em></span></button>' +
+        '</div></div>';
+
+      html += '<div class="card"><h3>Modo festivo</h3><p class="desc">Cuando está activo (y dentro de las fechas), anula el tema por defecto.</p>' +
         '<div class="check"><input type="checkbox" id="h_active"' + (holiday.active ? ' checked' : '') + '><span>Activado</span></div>' +
         '<div class="row" style="margin-top:12px">' +
         sel('h_mode', 'Tema festivo', themes.map(function (t) { return [t.key, t.label]; }), holiday.mode || 'none', true) +
@@ -2246,6 +2592,23 @@
         '</tbody></table></div>';
         mount.innerHTML = html;
         var ga = $('#goApariencia', mount); if (ga) ga.addEventListener('click', function () { switchTab('apariencia'); });
+
+        $all('[data-default-theme]', mount).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var t = btn.getAttribute('data-default-theme') === 'dark' ? 'dark' : 'light';
+            s.store = s.store || {};
+            s.store.defaultTheme = t;
+            $all('[data-default-theme]', mount).forEach(function (b) {
+              var on = b === btn;
+              b.classList.toggle('active', on);
+              b.setAttribute('aria-pressed', String(on));
+            });
+            try { localStorage.setItem('gh_store_default_theme', t); } catch (e) {}
+            SB.upsert('settings', { store_id: sid(), data: s, updated_at: new Date().toISOString() }, 'store_id')
+              .then(function () { toast('Tema de la tienda guardado: ' + (t === 'dark' ? 'oscuro' : 'claro'), 'ok'); })
+              .catch(function (e) { toast(e.message, 'err'); });
+          });
+        });
 
         $('#saveHoliday', mount).addEventListener('click', function () {
         s.holiday = {
@@ -2604,50 +2967,90 @@
   /* =========================================================
    *  Dashboard + Backup
    * ========================================================= */
+  function dashboardSkeleton() {
+    return '<div class="dash-wrap" aria-hidden="true">' +
+      '<div class="dash-hero"><span class="sk sk-hero-title"></span><span class="sk sk-hero-btn"></span></div>' +
+      '<div class="dash-stats">' + [0, 1, 2, 3].map(function () { return '<span class="sk sk-stat"></span>'; }).join('') + '</div>' +
+      '<div class="dashboard-layout"><span class="sk sk-panel"></span><span class="sk sk-panel"></span></div>' +
+      '</div>';
+  }
+
   function renderDashboard(mount) {
     var run = function () {
-    mount.innerHTML = skeleton(3);
+    mount.innerHTML = dashboardSkeleton();
     Promise.all([
       SB.get('products', scope('products', { select: 'id,type,hidden,image' })),
       SB.get('categories', scope('categories', { select: 'id' })),
       SB.get('activity_log', scope('activity_log', { select: 'text,created_at,user_id', order: 'created_at.desc', limit: '10' })).catch(function () { return []; }),
-      SB.get('admins', scope('admins', { select: 'id,name,username' })).catch(function () { return []; })
+      SB.get('admins', scope('admins', { select: 'id,name,username' })).catch(function () { return []; }),
+      SB.get('orders', scope('orders', { select: 'id,status' })).catch(function () { return []; })
     ]).then(function (r) {
-      var prod = r[0], cats = r[1], log = r[2] || [], admins = r[3] || [];
+      var prod = r[0], cats = r[1], log = r[2] || [], admins = r[3] || [], orders = r[4] || [];
       draw();
 
       function draw() {
-        var nProd = prod.filter(function (p) { return p.type !== 'combo'; }).length;
-        var nCombo = prod.filter(function (p) { return p.type === 'combo'; }).length;
+        var normal = prod.filter(function (p) { return p.type !== 'combo'; });
+        var combos = prod.filter(function (p) { return p.type === 'combo'; });
+        var nProd = normal.length, nCombo = combos.length;
         var nHidden = prod.filter(function (p) { return p.hidden; }).length;
         var nNoImg = prod.filter(function (p) { return !p.image; }).length;
+        var nNewOrders = orders.filter(function (o) { return o.status === 'nuevo'; }).length;
+        var nInProcess = orders.filter(function (o) { return o.status === 'en_proceso'; }).length;
         var nameOf = {}; admins.forEach(function (a) { nameOf[a.id] = a.name || a.username || ''; });
         var acts = log.slice(0, 10);
+        var who = (S.me && (S.me.name || S.me.username)) || '';
+        var now = new Date();
+        var dateStr = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
+        dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+
         var actHtml = acts.length ? '<ul class="activity">' + acts.map(function (a) {
-          return '<li><span class="act-dot"></span><span class="act-text">' + esc(a.text) + '</span>' +
-            '<span class="act-meta">' + esc(nameOf[a.user_id] || '') + ' · ' + esc(timeAgo(a.created_at)) + '</span></li>';
-        }).join('') + '</ul>' : '<p class="muted">Sin actividad reciente.</p>';
+          var name = nameOf[a.user_id] || '';
+          var initial = name ? name.trim().charAt(0).toUpperCase() : '';
+          return '<li><span class="act-avatar" aria-hidden="true">' + esc(initial || '·') + '</span>' +
+            '<span class="act-body"><span class="act-text">' + esc(a.text) + '</span>' +
+            '<span class="act-meta">' + (name ? esc(name) + ' · ' : '') + esc(timeAgo(a.created_at)) + '</span></span></li>';
+        }).join('') + '</ul>' : '<div class="dash-empty"><span class="dash-empty-ico" aria-hidden="true">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
+          '</span><p>Aquí verás los cambios del panel en cuanto ocurran.</p></div>';
 
         mount.innerHTML =
-          '<div class="grid stats-grid">' +
-            stat(nProd, 'Productos', { tab: 'productos' }) + stat(nCombo, 'Combos', { tab: 'combos' }) + stat(cats.length, 'Categorías', { tab: 'categorias' }) +
-          '</div>' +
-          '<div class="dashboard-layout">' +
-            '<section class="card dash-card"><header class="card-head"><div><h3>Accesos rápidos</h3><p class="desc">Ir directo a lo que quieras editar.</p></div></header>' +
-              '<div class="quick-grid">' +
-                '<button class="quick-item" data-tab="productos"><div class="quick-icon">' + svgIcon('productos') + '</div><div class="quick-text"><div class="quick-title">Productos</div><div class="quick-sub">' + nProd + ' en catálogo</div></div><span class="quick-arrow">›</span></button>' +
-                '<button class="quick-item" data-tab="combos"><div class="quick-icon">' + svgIcon('combos') + '</div><div class="quick-text"><div class="quick-title">Combos</div><div class="quick-sub">' + nCombo + ' en catálogo</div></div><span class="quick-arrow">›</span></button>' +
-                '<button class="quick-item" data-tab="categorias"><div class="quick-icon">' + svgIcon('categorias') + '</div><div class="quick-text"><div class="quick-title">Categorías</div><div class="quick-sub">' + cats.length + ' registradas</div></div><span class="quick-arrow">›</span></button>' +
-                '<button class="quick-item" data-tab="navegacion"><div class="quick-icon">' + svgIcon('navegacion') + '</div><div class="quick-text"><div class="quick-title">Navegación</div><div class="quick-sub">Menú de la tienda</div></div><span class="quick-arrow">›</span></button>' +
-                '<button class="quick-item" data-tab="canvas"><div class="quick-icon">' + svgIcon('canvas') + '</div><div class="quick-text"><div class="quick-title">Portada / Canvas</div><div class="quick-sub">Hero animado</div></div><span class="quick-arrow">›</span></button>' +
-                '<button class="quick-item" data-tab="backup"><div class="quick-icon">' + svgIcon('backup') + '</div><div class="quick-text"><div class="quick-title">Backup</div><div class="quick-sub">Exportar / restaurar</div></div><span class="quick-arrow">›</span></button>' +
+          '<div class="dash-wrap">' +
+            '<header class="dash-hero">' +
+              '<div class="dash-hero-copy">' +
+                '<p class="dash-eyebrow">Resumen de la tienda</p>' +
+                '<h1>' + (who ? 'Hola, ' + esc(who) : 'Hola') + '</h1>' +
+                '<p class="dash-hero-sub">' + esc(dateStr) + '</p>' +
               '</div>' +
-              (nHidden || nNoImg ? '<div class="alert-strip"><div class="alert-title">Atención</div><div class="alert-list">' +
-                (nHidden ? '<button class="alert-pill" data-tab="productos" data-status="hidden">' + nHidden + ' producto' + (nHidden===1?'':'s') + ' oculto' + (nHidden===1?'':'s') + '</button>' : '') +
-                (nNoImg ? '<button class="alert-pill" data-tab="productos" data-missing="image">' + nNoImg + ' producto' + (nNoImg===1?'':'s') + ' sin imagen</button>' : '') +
-              '</div></div>' : '') +
-            '</section>' +
-            '<section class="card dash-card dash-activity"><header class="card-head"><div><h3>Actividad reciente</h3><p class="desc">Últimos cambios en el panel.</p></div></header><div class="card-body dash-activity-body">' + actHtml + '</div></section>' +
+              '<div class="dash-hero-actions">' +
+                '<button type="button" class="btn primary" data-create="productos">+ Nuevo producto</button>' +
+                '<button type="button" class="btn" data-tab="pedidos">Ver pedidos</button>' +
+              '</div>' +
+            '</header>' +
+            '<div class="dash-stats">' +
+              stat({ tab: 'productos', icon: 'productos', tone: 'brand', value: nProd, label: 'Productos', meta: visibleMeta(normal) }) +
+              stat({ tab: 'combos', icon: 'combos', tone: 'blue', value: nCombo, label: 'Combos', meta: visibleMeta(combos) }) +
+              stat({ tab: 'categorias', icon: 'categorias', tone: 'teal', value: cats.length, label: 'Categorías', meta: cats.length === 1 ? '1 categoría activa' : cats.length + ' categorías activas' }) +
+              stat({ tab: 'pedidos', status: 'nuevo', icon: 'pedidos', tone: 'amber', value: nNewOrders, label: 'Pedidos nuevos', meta: nInProcess ? nInProcess + ' en proceso' : 'Todo al día' }) +
+            '</div>' +
+            '<div class="dashboard-layout">' +
+              '<section class="card dash-card"><header class="card-head"><div><h3>Accesos rápidos</h3><p class="desc">A donde quieres ir ahora.</p></div></header>' +
+                '<div class="quick-grid">' +
+                  quick('pedidos', 'pedidos', 'Pedidos', nNewOrders ? nNewOrders + ' sin revisar' : orders.length + ' en total') +
+                  quick('productos', 'productos', 'Productos', nProd + ' en catálogo') +
+                  quick('combos', 'combos', 'Combos', nCombo + ' en catálogo') +
+                  quick('categorias', 'categorias', 'Categorías', cats.length + ' registradas') +
+                  quick('home', 'portada', 'Portada', 'Hero y logo', ' data-pane="portada"') +
+                  quick('navegacion', 'navegacion', 'Navegación', 'Menú de la tienda') +
+                  quick('apariencia', 'apariencia', 'Apariencia', 'Colores y estilo') +
+                  quick('backup', 'backup', 'Backup', 'Exportar / restaurar') +
+                '</div>' +
+                ((nHidden || nNoImg) ? '<div class="alert-strip"><span class="alert-ico" aria-hidden="true">!</span><div class="alert-copy"><div class="alert-title">Necesita tu atención</div><div class="alert-list">' +
+                  (nHidden ? '<button type="button" class="alert-pill" data-tab="productos" data-status="hidden">' + nHidden + ' oculto' + (nHidden === 1 ? '' : 's') + '</button>' : '') +
+                  (nNoImg ? '<button type="button" class="alert-pill" data-tab="productos" data-missing="image">' + nNoImg + ' sin imagen</button>' : '') +
+                '</div></div></div>' : '') +
+              '</section>' +
+              '<section class="card dash-card dash-activity"><header class="card-head"><div><h3>Actividad reciente</h3><p class="desc">Últimos cambios en el panel.</p></div></header><div class="card-body dash-activity-body">' + actHtml + '</div></section>' +
+            '</div>' +
           '</div>';
 
         $all('[data-tab]', mount).forEach(function (b) {
@@ -2655,19 +3058,36 @@
             var f = {};
             if (b.dataset.status) f.status = b.dataset.status;
             if (b.dataset.missing) f.missing = b.dataset.missing;
+            if (b.dataset.pane) f.pane = b.dataset.pane;
             goTab(b.dataset.tab, Object.keys(f).length ? f : null);
           });
         });
+        $all('[data-create]', mount).forEach(function (b) {
+          b.addEventListener('click', function () { quickCreate(b.dataset.create); });
+        });
+
+        function stat(o) {
+          return '<button type="button" class="stat stat-link" data-tab="' + esc(o.tab) + '"' + (o.status ? ' data-status="' + esc(o.status) + '"' : '') + '>' +
+            '<span class="stat-top"><span class="stat-ico tone-' + o.tone + '">' + svgIcon(o.icon) + '</span></span>' +
+            '<span class="stat-n">' + esc(o.value) + '</span>' +
+            '<span class="stat-l">' + esc(o.label) + '</span>' +
+            '<span class="stat-meta">' + esc(o.meta) + '</span></button>';
+        }
+        function visibleMeta(list) {
+          var hidden = list.filter(function (p) { return p.hidden; }).length;
+          var visible = list.length - hidden;
+          return hidden ? visible + ' visibles · ' + hidden + ' ocultos' : visible + ' visibles';
+        }
+        function quick(tab, icon, title, sub, extra) {
+          return '<button type="button" class="quick-item" data-tab="' + esc(tab) + '"' + (extra || '') + '>' +
+            '<span class="quick-icon">' + svgIcon(icon) + '</span>' +
+            '<span class="quick-text"><span class="quick-title">' + esc(title) + '</span><span class="quick-sub">' + esc(sub) + '</span></span>' +
+            '<span class="quick-arrow" aria-hidden="true">›</span></button>';
+        }
       }
     }).catch(function (e) { errorState(mount, e, run); });
     };
     run();
-
-    function stat(n, l, o) {
-      var inner = '<div class="n">' + esc(n) + '</div><div class="l">' + esc(l) + '</div>';
-      if (!o) return '<div class="stat">' + inner + '</div>';
-      return '<button class="stat stat-link" data-tab="' + esc(o.tab) + '"' + (o.status ? ' data-status="' + esc(o.status) + '"' : '') + '>' + inner + '</button>';
-    }
   }
 
   function timeAgo(iso) {
@@ -2751,7 +3171,8 @@
     apariencia: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
     pedidos: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01M18 16h.01"/>',
     usuarios: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-    backup: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>'
+    backup: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    portada: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>'
   };
   function svgIcon(name) {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || '') + '</svg>';
@@ -2960,6 +3381,67 @@
     e.hidden = false;
     e.textContent = msg || '';
   }
+  /* =========================================================
+   *  Tema del panel (claro / oscuro)
+   * ========================================================= */
+  var THEME_KEY = 'gh_admin_theme';
+  function storedTheme() {
+    try { var t = localStorage.getItem(THEME_KEY); return (t === 'dark' || t === 'light') ? t : null; } catch (e) { return null; }
+  }
+  function systemTheme() {
+    try { return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch (e) { return 'light'; }
+  }
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    var b = $('#themeToggle');
+    if (b) {
+      b.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+      b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      b.title = t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    }
+  }
+  function setTheme(t, persist) {
+    applyTheme(t);
+    if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+  }
+  function toggleTheme() {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(next, true);
+    toast(next === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado', 'ok');
+  }
+  function themeOptHtml(kind, title, desc) {
+    var icon = kind === 'dark'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
+    return '<button type="button" class="theme-opt" data-theme-opt="' + kind + '">' +
+      '<span class="theme-opt-ico">' + icon + '</span>' +
+      '<span class="theme-opt-txt"><strong>' + title + '</strong><span>' + desc + '</span></span>' +
+      '</button>';
+  }
+  function askThemeOnce(done) {
+    if (storedTheme()) { if (done) done(); return; }
+    openModal({
+      title: 'Elige el tema del panel',
+      size: 'sm',
+      body: '<p class="muted" style="margin-top:0">Escoge cómo quieres ver el panel. Podrás cambiarlo cuando quieras con el botón de tema de la barra superior.</p>' +
+        '<div class="theme-choice">' +
+        themeOptHtml('light', 'Modo claro', 'Fondo claro, ideal con mucha luz.') +
+        themeOptHtml('dark', 'Modo oscuro', 'Fondo oscuro, más cómodo de noche.') +
+        '</div>',
+      onMount: function (body) {
+        $all('[data-theme-opt]', body).forEach(function (b) {
+          b.addEventListener('click', function () {
+            var t = b.getAttribute('data-theme-opt');
+            setTheme(t, true);
+            closeModal();
+            toast(t === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado', 'ok');
+            if (done) done();
+          });
+        });
+      }
+    });
+  }
+
   function showApp() {
     $('#loginView').hidden = true;
     $('#appView').hidden = false;
@@ -2971,11 +3453,16 @@
     refreshNavBadge();
     var seen = false;
     try { seen = !!localStorage.getItem(tourDoneKey()); } catch (e) {}
-    if (!seen) setTimeout(startTour, 700);
+    function maybeTour() { if (!seen) setTimeout(startTour, 500); }
+    if (storedTheme()) maybeTour();
+    else askThemeOnce(maybeTour);
     startSessionGuard();
   }
 
   function boot() {
+    applyTheme(storedTheme() || systemTheme());
+    var themeBtn = $('#themeToggle');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
     if (!SB.isConfigured()) {
       showLogin();
       return;

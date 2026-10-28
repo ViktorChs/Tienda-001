@@ -2,6 +2,7 @@
     'use strict';
 
     var KEY = 'gh_theme';
+    var THEME_DEFAULT_KEY = 'gh_store_default_theme';
     var root = document.documentElement;
     var mq = null;
     var current = 'light';
@@ -13,8 +14,23 @@
         catch (e) { return null; }
     }
 
-    function systemTheme() {
-        return (mq && mq.matches) ? 'dark' : 'light';
+    function normalize(t) { return t === 'dark' ? 'dark' : 'light'; }
+
+    function cachedDefault() {
+        try {
+            var v = localStorage.getItem(THEME_DEFAULT_KEY);
+            return v === 'dark' || v === 'light' ? v : null;
+        } catch (e) { return null; }
+    }
+
+    // Tema base configurado por el admin. Manda sobre la preferencia del
+    // sistema: si la tienda abre en claro, se ve claro aunque el SO esté oscuro.
+    var defaultTheme = cachedDefault() || 'light';
+
+    function setDefault(theme) {
+        defaultTheme = normalize(theme);
+        try { localStorage.setItem(THEME_DEFAULT_KEY, defaultTheme); } catch (e) {}
+        if (!stored()) apply(defaultTheme, false);
     }
 
     function apply(theme, persist) {
@@ -27,7 +43,7 @@
     }
 
     // Aplica lo antes posible para evitar parpadeo
-    apply(stored() || systemTheme(), false);
+    apply(stored() || defaultTheme, false);
 
     var SUN = '<svg class="gh-ico gh-ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
     var MOON = '<svg class="gh-ico gh-ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
@@ -83,7 +99,7 @@
     }
 
     if (mq && mq.addEventListener) {
-        mq.addEventListener('change', function () { if (!stored()) apply(systemTheme(), false); });
+        mq.addEventListener('change', function () { if (!stored()) apply(defaultTheme, false); });
     }
 
     try {
@@ -99,8 +115,14 @@
     // pageshow con persisted=true detecta esa restauracion y vuelve a aplicar
     // la preferencia guardada (localStorage) para que no quede desincronizada.
     window.addEventListener('pageshow', function (e) {
-        if (e.persisted) apply(stored() || systemTheme(), false);
+        if (e.persisted) apply(stored() || defaultTheme, false);
     });
 
-    window.GHTheme = { get: function () { return current; }, set: function (t) { apply(t, true); }, toggle: toggle };
+    window.GHTheme = {
+        get: function () { return current; },
+        getDefault: function () { return defaultTheme; },
+        setDefault: setDefault,
+        set: function (t) { apply(t, true); },
+        toggle: toggle
+    };
 })();
