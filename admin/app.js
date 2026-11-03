@@ -2856,6 +2856,69 @@ var VIEW_ICO = {
   }
 
   /* =========================================================
+   *  Tiendas (solo owner)
+   * ========================================================= */
+  function renderStores(mount) {
+    var run = function () {
+      mount.innerHTML = skeleton(3);
+      SB.get('stores', { select: '*', order: 'id.asc' }).then(function (rows) {
+        draw();
+
+        function draw() {
+          mount.innerHTML =
+            '<div class="card"><h3>Tiendas</h3><p class="desc mb0">Cada tienda tiene su propio catálogo, tema, armador y panel. Comparten base de datos.</p></div>' +
+            '<div class="card" style="padding:0;overflow:auto"><table class="responsive"><thead><tr><th>#</th><th>Nombre</th><th>Slug</th><th>Estado</th><th>Panel</th></tr></thead><tbody>' +
+              rows.map(function (s) {
+                return '<tr><td data-label="ID">' + esc(s.id) + '</td>' +
+                  '<td data-label="Nombre"><strong>' + esc(s.name) + '</strong></td>' +
+                  '<td data-label="Slug"><code>' + esc(s.slug) + '</code></td>' +
+                  '<td data-label="Estado">' + (s.active ? '<span class="tag on">Activa</span>' : '<span class="tag off">Suspendida</span>') + '</td>' +
+                  '<td data-label="Panel">' + (Number(s.id) === sid() ? '<span class="tag">Panel actual</span>' : '<span class="muted">Otro repositorio</span>') + '</td></tr>';
+              }).join('') + '</tbody></table></div>' +
+            '<div class="card"><h3>Crear tienda</h3>' +
+              '<p class="desc">Clona configuración, temas, navegación y armador de la tienda actual. El catálogo arranca vacío.</p>' +
+              '<div class="row">' +
+                '<div class="field"><label>Nombre</label><input id="stName" maxlength="80" placeholder="Tienda 004"></div>' +
+                '<div class="field"><label>Slug</label><input id="stSlug" maxlength="40" placeholder="tienda-004"></div>' +
+              '</div>' +
+              '<button type="button" class="btn primary" id="stCreate">Crear tienda</button>' +
+              '<p class="help" style="margin-top:12px">Después crea el usuario en Supabase Auth y asígnale un perfil en <code>admins</code> con el <code>store_id</code> nuevo. El panel de esa tienda se despliega desde su propio repositorio con <code>STORE_ID</code> ajustado en <code>assets/js/config.js</code>.</p>' +
+            '</div>';
+          $('#stCreate', mount).addEventListener('click', createStore);
+        }
+
+        function createStore() {
+          var name = $('#stName', mount).value.trim();
+          var slug = $('#stSlug', mount).value.trim().toLowerCase();
+          if (!name) return toast('Escribe un nombre', 'err');
+          if (!/^[a-z0-9][a-z0-9-]{1,40}$/.test(slug)) return toast('Slug no válido (minúsculas, números y guiones)', 'err');
+          var btn = $('#stCreate', mount);
+          btn.disabled = true;
+          SB.rpc('create_store', { p_slug: slug, p_name: name, p_source: sid() }).then(function (id) {
+            var newId = Array.isArray(id) ? id[0] : id;
+            toast('Tienda creada', 'ok');
+            logActivity('Creó la tienda ' + name + ' (#' + newId + ')');
+            rows = rows.concat([{ id: newId, name: name, slug: slug, active: true }]);
+            draw();
+            openModal({
+              title: 'Tienda creada',
+              body: '<p>La tienda <strong>' + esc(name) + '</strong> quedó con el id <strong>' + esc(newId) + '</strong>.</p>' +
+                '<p class="muted">Para darle acceso: crea el usuario en <strong>Supabase → Authentication → Users</strong> y ejecuta en SQL Editor:</p>' +
+                '<pre style="white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,.06);padding:12px;border-radius:8px">insert into public.admins (id, name, username, role, active, store_id)\nvalues (\'UUID-DEL-USUARIO\', \'Owner\', \'owner\', \'owner\', true, ' + esc(newId) + ');</pre>' +
+                '<p class="muted mb0">Luego despliega el repositorio de esa tienda con <code>STORE_ID: ' + esc(newId) + '</code> en <code>assets/js/config.js</code>.</p>',
+              buttons: [{ label: 'Entendido', class: 'primary', onClick: closeModal }]
+            });
+          }).catch(function (e) {
+            btn.disabled = false;
+            toast(e.message, 'err');
+          });
+        }
+      }).catch(function (e) { errorState(mount, e, run); });
+    };
+    run();
+  }
+
+  /* =========================================================
    *  Pedidos
    * ========================================================= */
   var ORDER_STATUS = ['nuevo', 'en_proceso', 'pagado', 'entregado', 'cancelado'];
@@ -2983,9 +3046,10 @@ var VIEW_ICO = {
       SB.get('categories', scope('categories', { select: 'id' })),
       SB.get('activity_log', scope('activity_log', { select: 'text,created_at,user_id', order: 'created_at.desc', limit: '10' })).catch(function () { return []; }),
       SB.get('admins', scope('admins', { select: 'id,name,username' })).catch(function () { return []; }),
-      SB.get('orders', scope('orders', { select: 'id,status' })).catch(function () { return []; })
+      SB.get('orders', scope('orders', { select: 'id,status' })).catch(function () { return []; }),
+      getSettings().catch(function () { return {}; })
     ]).then(function (r) {
-      var prod = r[0], cats = r[1], log = r[2] || [], admins = r[3] || [], orders = r[4] || [];
+      var prod = r[0], cats = r[1], log = r[2] || [], admins = r[3] || [], orders = r[4] || [], settings = r[5] || {};
       draw();
 
       function draw() {
@@ -2996,6 +3060,7 @@ var VIEW_ICO = {
         var nNoImg = prod.filter(function (p) { return !p.image; }).length;
         var nNewOrders = orders.filter(function (o) { return o.status === 'nuevo'; }).length;
         var nInProcess = orders.filter(function (o) { return o.status === 'en_proceso'; }).length;
+        var isOpen = !settings.store || settings.store.open !== false;
         var nameOf = {}; admins.forEach(function (a) { nameOf[a.id] = a.name || a.username || ''; });
         var acts = log.slice(0, 10);
         var who = (S.me && (S.me.name || S.me.username)) || '';
@@ -3019,9 +3084,11 @@ var VIEW_ICO = {
               '<div class="dash-hero-copy">' +
                 '<p class="dash-eyebrow">Resumen de la tienda</p>' +
                 '<h1>' + (who ? 'Hola, ' + esc(who) : 'Hola') + '</h1>' +
-                '<p class="dash-hero-sub">' + esc(dateStr) + '</p>' +
+                '<p class="dash-hero-sub">' + esc(dateStr) + ' · <strong style="color:' + (isOpen ? 'var(--ok)' : 'var(--danger)') + '">' + (isOpen ? 'Tienda abierta' : 'Tienda cerrada') + '</strong></p>' +
               '</div>' +
               '<div class="dash-hero-actions">' +
+                '<button type="button" class="btn ' + (isOpen ? '' : 'primary') + '" data-store-power="' + (isOpen ? 'close' : 'open') + '">' +
+                  (isOpen ? 'Cerrar tienda' : 'Abrir tienda') + '</button>' +
                 '<button type="button" class="btn primary" data-create="productos">+ Nuevo producto</button>' +
                 '<button type="button" class="btn" data-tab="pedidos">Ver pedidos</button>' +
               '</div>' +
@@ -3060,6 +3127,29 @@ var VIEW_ICO = {
             if (b.dataset.missing) f.missing = b.dataset.missing;
             if (b.dataset.pane) f.pane = b.dataset.pane;
             goTab(b.dataset.tab, Object.keys(f).length ? f : null);
+          });
+        });
+        $all('[data-store-power]', mount).forEach(function (b) {
+          b.addEventListener('click', function () {
+            var wantOpen = b.dataset.storePower === 'open';
+            function apply() {
+              var next = JSON.parse(JSON.stringify(settings || {}));
+              next.store = next.store || {};
+              next.store.open = wantOpen;
+              SB.upsert('settings', { store_id: sid(), data: next, updated_at: new Date().toISOString() }, 'store_id')
+                .then(function () {
+                  settings = next;
+                  invalidate();
+                  logActivity((wantOpen ? 'Abrió' : 'Cerró') + ' la tienda');
+                  toast(wantOpen ? 'Tienda abierta' : 'Tienda cerrada', 'ok');
+                  draw();
+                })
+                .catch(function (e) { toast(e.message, 'err'); });
+            }
+            if (wantOpen) { apply(); return; }
+            confirmDialog('La tienda dejará de mostrar su catálogo y no se podrán enviar pedidos hasta que la abras de nuevo.', apply, {
+              title: 'Cerrar tienda', dangerLabel: 'Cerrar tienda', dangerClass: 'primary'
+            });
           });
         });
         $all('[data-create]', mount).forEach(function (b) {
@@ -3171,6 +3261,7 @@ var VIEW_ICO = {
     apariencia: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
     pedidos: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01M18 16h.01"/>',
     usuarios: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    tiendas: '<path d="M3 9 5 3h14l2 6"/><path d="M3 9h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-6h6v6"/>',
     backup: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
     portada: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>'
   };
@@ -3190,6 +3281,7 @@ var VIEW_ICO = {
     { k: 'apariencia', l: 'Apariencia', grp: 'Tienda', svg: 'apariencia', render: renderApariencia },
     { k: 'temas', l: 'Temas / Festivos', grp: 'Tienda', svg: 'temas', render: renderThemes },
     { k: 'pedidos', l: 'Pedidos', grp: 'Ventas', svg: 'pedidos', render: renderOrders },
+    { k: 'tiendas', l: 'Tiendas', grp: 'Sistema', svg: 'tiendas', render: renderStores, ownerOnly: true },
     { k: 'usuarios', l: 'Usuarios', grp: 'Sistema', svg: 'usuarios', render: renderUsers, ownerOnly: true },
     { k: 'backup', l: 'Backup', grp: 'Sistema', svg: 'backup', render: renderBackup }
   ];
@@ -3484,6 +3576,10 @@ var VIEW_ICO = {
       var me = rows[0];
       if (!me) throw new Error('Tu cuenta no tiene perfil de administrador. Pide al propietario que te agregue.');
       if (!me.active) throw new Error('Tu cuenta está desactivada.');
+      var pinned = Number((window.GIGA_CONFIG && window.GIGA_CONFIG.STORE_ID) || 0);
+      if (pinned && Number(me.store_id) !== pinned) {
+        throw new Error('Esta cuenta pertenece a otra tienda. Usa el panel de la tienda ' + pinned + '.');
+      }
       S.me = me;
       return me;
     });
