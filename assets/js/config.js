@@ -17,6 +17,23 @@ window.GIGA_CONFIG = {
   // Para otra tienda: cambia STORE_ID (o que el Worker lo inyecte por subdominio).
   STORE_ID: 1,
   STORE_SLUG: 'maniaworld',
+  // Fallback local si la RPC store_product_usage aun no esta aplicada.
+  PLAN_TIER: 'empresarial',
+
+  // OX1 = control plane (pagos, licencias, bloqueo, tier).
+  // WS_REF es el project ref de la base GIGA compartida.
+  OX1_URL: 'https://wufzqynbhvfbzlmqnvgw.supabase.co',
+  OX1_ANON_KEY: 'sb_publishable_MLdr8wFcc2vG9npNtUg38g_Dg_uxodE',
+  WS_REF: 'isnbkqgzncjgttijzlmo',
+
+  // Branding dinamico. brand.js reemplaza MANIAWORLD/GIGAHEARTZ en el DOM.
+  // Para Tienda-002/003 cambia name (y domain/email si tienes dominio propio).
+  BRAND: {
+    name: 'MANIAWORLD',
+    domain: 'gigahertzstore.com',
+    email: 'soporte@gigahertzstore.com',
+    whatsapp: '584121049705'
+  },
 
   // Al subir una imagen desde el panel se convierte a WebP en el navegador
   // antes de enviarla (menos peso). Se salta SVG y GIF animado.
