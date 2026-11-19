@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 
 <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://isnbkqgzncjgttijzlmo.supabase.co">
-    <title>Catálogo - MANIAWORLD</title>
+    <title>CatÃ¡logo - MANIAWORLD</title>
     <script src="assets/js/theme.js?v=20261026"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/ox1.js?v=20261112"></script>
@@ -2399,12 +2399,12 @@
             <a href="index.html#inicio" class="hover:text-purple-600 transition-colors">Inicio</a>
             <a href="catalogo.html" class="text-purple-600 font-semibold">Productos</a>
             <a href="index.html#productos" class="js-cat-nav hover:text-purple-600 transition-colors cursor-pointer">Categorias</a>
-            <a href="ubicacion.html" class="hover:text-purple-600 transition-colors">Ubicación</a>
+            <a href="ubicacion.html" class="hover:text-purple-600 transition-colors">UbicaciÃ³n</a>
             <a href="contacto.html" class="hover:text-purple-600 transition-colors">Contacto</a>
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-3 text-gray-800">
-            <button id="navBurger" class="lg:hidden p-2 rounded-full hover:bg-gray-200/60 transition-colors" title="Menú" aria-label="Abrir menú">
+            <button id="navBurger" class="lg:hidden p-2 rounded-full hover:bg-gray-200/60 transition-colors" title="MenÃº" aria-label="Abrir menÃº">
                 <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
             </button>
             <button id="navCart" class="p-2 rounded-full hover:bg-gray-200/60 transition-colors relative" title="Carrito">
@@ -2455,8 +2455,8 @@
                     </div>
 
                     <div class="cf-group">
-                        <span class="cf-label">Categoría</span>
-                        <button type="button" id="cfCatBtn" class="cf-select cf-cat-btn" aria-haspopup="dialog" aria-label="Elegir categoría">
+                        <span class="cf-label">CategorÃ­a</span>
+                        <button type="button" id="cfCatBtn" class="cf-select cf-cat-btn" aria-haspopup="dialog" aria-label="Elegir categorÃ­a">
                             <span id="cfCatVal">Ver todas</span>
                             <svg class="cf-dd-chev" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
                         </button>
@@ -2467,18 +2467,18 @@
                         <div class="cf-prices">
                             <label class="cf-input">
                                 <span>$</span>
-                                <input type="number" id="cfMin" min="0" placeholder="Mín" inputmode="numeric">
+                                <input type="number" id="cfMin" min="0" placeholder="MÃ­n" inputmode="numeric">
                             </label>
-                            <span class="cf-dash">–</span>
+                            <span class="cf-dash">â€“</span>
                             <label class="cf-input">
                                 <span>$</span>
-                                <input type="number" id="cfMax" min="0" placeholder="Máx" inputmode="numeric">
+                                <input type="number" id="cfMax" min="0" placeholder="MÃ¡x" inputmode="numeric">
                             </label>
                         </div>
                         <div class="cf-range" id="cfRange">
                             <div class="cf-range-track"><div class="cf-range-fill" id="cfFill"></div></div>
-                            <input type="range" id="cfLo" aria-label="Precio mínimo">
-                            <input type="range" id="cfHi" aria-label="Precio máximo">
+                            <input type="range" id="cfLo" aria-label="Precio mÃ­nimo">
+                            <input type="range" id="cfHi" aria-label="Precio mÃ¡ximo">
                         </div>
                     </div>
                 </aside>
@@ -2499,399 +2499,59 @@
                         </button>
                     </div>
                     <div class="grid grid-cols-2 gap-3 sm:gap-6" id="crGrid">
-<!-- Product 1 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Tarjetas de Video">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-1.webp" alt="Tarjeta Gráfica RTX 4070" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                            <span class="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">Top Ventas</span>
-                        </div>
-                        <h4 class="product-name">Tarjeta Gráfica NVIDIA GeForce RTX 4070 Super 12GB GDDR6X Gaming</h4>
-                        <p class="product-sub">12GB GDDR6X Gaming</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$799.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </button>
-                </div>
 
-                <!-- Product 2 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Procesadores">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-2.webp" alt="Procesador AMD Ryzen 7" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                            <span class="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">Destacado</span>
-                        </div>
-                        <h4 class="product-name">Procesador AMD Ryzen 7 7800X3D de 8 Núcleos 16 Hilos hasta 5.0GHz AM5</h4>
-                        <p class="product-sub">AM5 8 Nucleos 5.0GHz</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$389.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </button>
-                </div>
 
-                <!-- Product 3 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Teclados">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-3.webp" alt="Teclado Mecánico RGB Pro" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                            <span class="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">Popular</span>
-                        </div>
-                        <h4 class="product-name">Teclado Mecánico Gamer RGB Pro con Switches Red Hot-Swap y RGB por Tecla</h4>
-                        <p class="product-sub">Switches Red Hot-Swap</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$79.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </button>
-                </div>
+                
 
-                <!-- Product 4 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Computadoras" data-subcat="Monitores">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-4.webp" alt="Monitor Gamer Curvo 27" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                            <span class="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">Oferta</span>
-                        </div>
-                        <h4 class="product-name">Monitor Gamer Curvo 27" Samsung Odyssey G5 180Hz QHD 2560x1440 1ms FreeSync Premium</h4>
-                        <p class="product-sub">IPS 1ms FreeSync Premium</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$269.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </button>
-                </div>
+                
 
-                <!-- Product 5 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Audífonos">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-5.webp" alt="Audífonos Gamer 7.1" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                            <span class="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">Nuevo</span>
-                        </div>
-                        <h4 class="product-name">Audífonos Gamer 7.1 Surround</h4>
-                        <p class="product-sub">RGB Micrófono Reducción Ruido</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$65.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </button>
-                </div>
+                
 
-                <!-- Product 6 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Tarjetas de Video">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/ZOTAC_Gaming%27s_GeForce_RTX_50_Series_Graphics_Carda.jpg/500px-ZOTAC_Gaming%27s_GeForce_RTX_50_Series_Graphics_Carda.jpg" alt="RTX 4060 Ti" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Tarjeta Gráfica NVIDIA GeForce RTX 4060 Ti 8GB GDDR6 con DLSS 3 y Ray Tracing</h4>
-                        <p class="product-sub">8GB GDDR6 DLSS 3</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$399.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 7 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Procesadores">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-7.webp" alt="Core i7-14700K" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Procesador Intel Core i7-14700K de 20 Núcleos hasta 5.6GHz Socket LGA1700</h4>
-                        <p class="product-sub">LGA1700 20 Nucleos 5.6GHz</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$409.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 8 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Tarjetas Madre Intel">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-8.webp" alt="Z790 Motherboard" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Tarjeta Madre ASUS ROG Strix Z790-A Gaming WiFi DDR5 LGA1700 con Wi-Fi 6E</h4>
-                        <p class="product-sub">DDR5 Wi-Fi 6E LGA1700</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$329.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 9 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Memorias Ram DDR5">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-9.webp" alt="RAM 32GB" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Memoria RAM Corsair Vengeance RGB 32GB DDR5 6000MHz CL30 Kit 2x16GB</h4>
-                        <p class="product-sub">Kit 2x16GB 6000MHz CL30</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$119.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 10 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="SSD M.2">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Samsung_980_PRO_PCIe_4.0_NVMe_SSD_1TB-top_PNr%C2%B00915.jpg/500px-Samsung_980_PRO_PCIe_4.0_NVMe_SSD_1TB-top_PNr%C2%B00915.jpg" alt="SSD 2TB" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">SSD M.2 NVMe Samsung 990 PRO 2TB PCIe 4.0 Lectura hasta 7450 MB/s</h4>
-                        <p class="product-sub">Lectura hasta 7450 MB/s</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$179.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 11 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Fuentes de Poder">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-11.webp" alt="PSU 850W" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Fuente de Poder Corsair RM850x 850W 80 Plus Gold Totalmente Modular</h4>
-                        <p class="product-sub">80 Plus Gold Modular</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$139.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 12 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Cases">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-12.webp" alt="Case Lian Li" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Gabinete Lian Li O11 Dynamic EVO con Vidrio Templado Dual Chamber</h4>
-                        <p class="product-sub">Vidrio Templado Dual Chamber</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$169.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 13 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Componentes" data-subcat="Enfriamiento">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-13.webp" alt="Enfriamiento Líquido" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Refrigeración Líquida NZXT Kraken 360 RGB AIO para Procesador</h4>
-                        <p class="product-sub">RGB AIO Liquid Cooler</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$189.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 14 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Mouses">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-14.webp" alt="Mouse Superlight" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Mouse Inalámbrico Logitech G Pro X Superlight 2 de 63g con Sensor HERO</h4>
-                        <p class="product-sub">Mouse Inalámbrico 63g</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$149.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 15 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Sillas Gamer">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-15.webp" alt="Silla Gamer" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Silla Gamer Secretlab Titan Evo Ergonómica en Cuero PU Talla Regular</h4>
-                        <p class="product-sub">Ergonómica Cuero PU</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$549.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 16 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Laptops" data-subcat="Laptops">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-16.webp" alt="Laptop Gamer" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Laptop Gamer ASUS ROG Strix G16 Intel Core i7 RTX 4060 Pantalla 16" 240Hz</h4>
-                        <p class="product-sub">i7 RTX 4060 16" 240Hz</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$1,399.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 17 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Computadoras" data-subcat="Monitores">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-17.webp" alt="Monitor 24" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Monitor Gamer 24" AOC 24G2SPE 165Hz IPS FHD 1920x1080 1ms FreeSync</h4>
-                        <p class="product-sub">FHD 1ms FreeSync</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$159.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 18 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Micrófonos">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Blue_Yeti_Blackout_USB_microphone_%2851844234538%29.jpg/500px-Blue_Yeti_Blackout_USB_microphone_%2851844234538%29.jpg" alt="QuadCast S" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Micrófono HyperX QuadCast S USB Condensador con RGB y Antipop</h4>
-                        <p class="product-sub">USB Condensador RGB</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$159.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 19 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Controles/Volantes">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-19.webp" alt="Control Xbox" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Control Inalámbrico Microsoft Xbox Series X Carbon Black para PC y Consola</h4>
-                        <p class="product-sub">Carbon Black PC / Console</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$69.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 20 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Impresión" data-subcat="Router y Mesh">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-20.webp" alt="Router WiFi 6" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Router ASUS RT-AX82U WiFi 6 Gaming con Iluminación AURA RGB</h4>
-                        <p class="product-sub">Gaming Router AURA RGB</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$199.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 21 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Computadoras" data-subcat="UPS / Respaldo Eléctrico">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-21.webp" alt="UPS 1500VA" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">UPS APC Back-UPS 1500VA de Respaldo Eléctrico Automático con Regulación</h4>
-                        <p class="product-sub">Respaldo Eléctrico Automático</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$219.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 22 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Periféricos" data-subcat="Webcam">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-22.webp" alt="Webcam C920" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Cámara Web Logitech C920 HD Pro 1080p con Micrófono Estéreo</h4>
-                        <p class="product-sub">1080p Streaming & Calls</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$79.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 23 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Impresión" data-subcat="Impresoras">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-23.webp" alt="Impresora EcoTank" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Impresora Epson EcoTank L3250 Multifuncional WiFi con Botellas de Tinta</h4>
-                        <p class="product-sub">Multifuncional WiFi Botellas</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$249.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 24 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Impresión" data-subcat="Accesorios">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="https://live.staticflickr.com/688/33264146426_fde684e26e_b.jpg" alt="Kit iFixit" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Kit de Herramientas iFixit Pro Tech Toolkit para Reparación de PCs y Laptops</h4>
-                        <p class="product-sub">Reparación PCs y Laptops</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$49.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
 
-                <!-- Product 25 -->
-                <div class="product-card p-3 sm:p-5 flex flex-col justify-between relative group" data-cat="Laptops" data-subcat="Accesorios">
-                    <div class="relative z-10">
-                        <div class="w-full h-32 sm:h-44 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative">
-                            <img src="assets/img/products/p-25.webp" alt="Base Cooling" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
-                        </div>
-                        <h4 class="product-name">Base Refrigerante para Laptop RGB 17" con Ventiladores Silenciosos</h4>
-                        <p class="product-sub">Ventiladores Silenciosos 17"</p>
-                    </div>
-                    <div class="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                        <span class="text-gray-900 font-extrabold text-base">$35.00</span>
-                    </div>
-                    <button class="absolute bottom-2 right-2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 hover:bg-purple-600 text-purple-600 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="Agregar al carrito"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
-                </div>
+                
+
+                
                     </div>
                     <div class="cr-empty" id="crEmpty" hidden>
                         <svg class="w-14 h-14 mx-auto text-purple-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-                        <p>Ningún producto coincide</p>
+                        <p>NingÃºn producto coincide</p>
                         <small>Prueba otro rango de precios o limpia los filtros.</small>
                     </div>
                 </section>
@@ -2908,30 +2568,30 @@
                     MANIAWORLD
                 </h3>
                 <span class="block w-12 h-1 rounded-full bg-purple-500 mb-3"></span>
-                <p class="text-xs text-gray-500 leading-relaxed">Tu tienda de confianza en tecnología, componentes de alta gama y equipos de computación en zulia y toda Venezuela.</p>
+                <p class="text-xs text-gray-500 leading-relaxed">Tu tienda de confianza en tecnologÃ­a, componentes de alta gama y equipos de computaciÃ³n en zulia y toda Venezuela.</p>
             </div>
             <div>
                 <h4 class="text-gray-900 font-semibold text-sm mb-3 flex items-center gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                    Enlaces Rápidos
+                    Enlaces RÃ¡pidos
                 </h4>
                 <ul class="space-y-2 text-xs">
                     <li><a href="#inicio" class="text-gray-500 hover:text-purple-600 transition-colors">Inicio</a></li>
-                    <li><a href="#lo-mas-vendido" class="text-gray-500 hover:text-purple-600 transition-colors">Lo más vendido</a></li>
-                    <li><a href="#productos" class="text-gray-500 hover:text-purple-600 transition-colors">Catálogo</a></li>
+                    <li><a href="#lo-mas-vendido" class="text-gray-500 hover:text-purple-600 transition-colors">Lo mÃ¡s vendido</a></li>
+                    <li><a href="#productos" class="text-gray-500 hover:text-purple-600 transition-colors">CatÃ¡logo</a></li>
                     <li><a href="contacto.html" class="text-gray-500 hover:text-purple-600 transition-colors">Contacto</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="text-gray-900 font-semibold text-sm mb-3 flex items-center gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                    Categorías Principales
+                    CategorÃ­as Principales
                 </h4>
                 <ul class="space-y-2 text-xs">
                     <li><span class="text-gray-500 hover:text-purple-600 transition-colors cursor-pointer">Componentes & Hardware</span></li>
                     <li><span class="text-gray-500 hover:text-purple-600 transition-colors cursor-pointer">Tarjetas de Video</span></li>
                     <li><span class="text-gray-500 hover:text-purple-600 transition-colors cursor-pointer">Laptops & PCs</span></li>
-                    <li><span class="text-gray-500 hover:text-purple-600 transition-colors cursor-pointer">Periféricos Gaming</span></li>
+                    <li><span class="text-gray-500 hover:text-purple-600 transition-colors cursor-pointer">PerifÃ©ricos Gaming</span></li>
                 </ul>
                 <a href="#productos" class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide shadow-lg shadow-purple-600/25 transition-all duration-200 active:scale-[0.97]">
                     Ver todos los productos
@@ -2945,7 +2605,7 @@
                 </h4>
                 <p class="text-xs text-gray-500 mb-2" data-gh="address">zulia, Venezuela</p>
                 <p class="text-xs text-gray-500 mb-2">Email: <a href="contacto.html" data-gh="email" class="text-purple-600 font-semibold hover:text-purple-700 transition-colors">soporte@gigahertzstore.com</a></p>
-                <p class="text-xs text-gray-500">Teléfono: <span class="text-purple-600 font-semibold" data-gh="phone">+58 (212) 555-GIGA</span></p>
+                <p class="text-xs text-gray-500">TelÃ©fono: <span class="text-purple-600 font-semibold" data-gh="phone">+58 (212) 555-GIGA</span></p>
             </div>
         </div>
         <div class="max-w-7xl mx-auto pt-6 border-t border-purple-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400">
@@ -2960,11 +2620,11 @@
     </button>
 
 <!-- Mobile Nav Drawer -->
-    <div id="navMenu" class="md-overlay" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+    <div id="navMenu" class="md-overlay" role="dialog" aria-modal="true" aria-label="MenÃº de navegaciÃ³n">
         <div class="md-panel">
             <div class="md-head">
                 <span>MANIAWORLD</span>
-                <button id="nmClose" class="md-close" title="Cerrar menú" aria-label="Cerrar menú">
+                <button id="nmClose" class="md-close" title="Cerrar menÃº" aria-label="Cerrar menÃº">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
@@ -2972,7 +2632,7 @@
                 <a href="index.html#inicio">Inicio</a>
                 <a href="catalogo.html">Productos</a>
                 <a href="index.html#productos" class="js-cat-nav">Categorias</a>
-                <a href="ubicacion.html">Ubicación</a>
+                <a href="ubicacion.html">UbicaciÃ³n</a>
                 <a href="contacto.html">Contacto</a>
             </nav>
         </div>
@@ -2984,7 +2644,7 @@
             <div class="cd-head">
                 <div>
                     <h3 id="cdTitle"><span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>Tu carrito</h3>
-                    <span class="cd-count" id="cdCount">0 artículos</span>
+                    <span class="cd-count" id="cdCount">0 artÃ­culos</span>
                 </div>
                 <button id="cdClose" class="cd-close" type="button" aria-label="Cerrar carrito">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -3012,7 +2672,7 @@
         <div class="pm-stage">
         <div class="pm-modal" id="pmModal">
 
-            <nav class="pm-crumbs" id="pmCrumbs" aria-label="Ruta de categoría">
+            <nav class="pm-crumbs" id="pmCrumbs" aria-label="Ruta de categorÃ­a">
                 <span class="pm-crumb-cat" id="pmCrumbCat"></span>
                 <span class="pm-crumb-sep">/</span>
                 <span class="pm-crumb-sub" id="pmCrumbSub"></span>
@@ -3089,7 +2749,7 @@
                     <div class="pm-acc-list">
                         <div class="pm-acc is-open" id="pmAccSpecs">
                             <button class="pm-acc-head" type="button" aria-expanded="true" aria-controls="pmAccSpecsPanel">
-                                <span>Especificaciones técnicas</span>
+                                <span>Especificaciones tÃ©cnicas</span>
                                 <svg class="pm-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
                             </button>
                             <div class="pm-acc-panel" id="pmAccSpecsPanel">
@@ -3098,7 +2758,7 @@
                         </div>
                         <div class="pm-acc" id="pmAccDesc">
                             <button class="pm-acc-head" type="button" aria-expanded="false" aria-controls="pmAccDescPanel">
-                                <span>Descripción</span>
+                                <span>DescripciÃ³n</span>
                                 <svg class="pm-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
                             </button>
                             <div class="pm-acc-panel" id="pmAccDescPanel">
@@ -3320,14 +2980,14 @@
                 const base = location.href.split('#')[0];
                 const url = encodeURIComponent(base + '#' + encodeURIComponent(current.name));
                 const store = (window.GigaData && GigaData.store) ? GigaData.store() : {};
-                const DEFAULT_TPL = '{name} — {sub} | {storeName}';
+                const DEFAULT_TPL = '{name} â€” {sub} | {storeName}';
                 const tpl = (store.shareTemplate && store.shareTemplate.trim()) ? store.shareTemplate : DEFAULT_TPL;
                 const raw = window.ghTemplate ? ghTemplate(tpl, {
                     storeName: store.name || 'MANIAWORLD',
                     name: current.name,
                     sub: current.sub,
                     url: base
-                }) : (current.name + ' — ' + current.sub + ' | MANIAWORLD');
+                }) : (current.name + ' â€” ' + current.sub + ' | MANIAWORLD');
                 const text = encodeURIComponent(raw);
                 const waBase = window.waLink ? waLink(store.whatsapp || '', raw) : ('https://wa.me/?text=' + text);
                 return {
@@ -3509,15 +3169,15 @@
             function renderDrawer() {
                 const items = GigaCart.all();
                 const count = GigaCart.count();
-                cdCount.textContent = count === 1 ? '1 artículo' : count + ' artículos';
+                cdCount.textContent = count === 1 ? '1 artÃ­culo' : count + ' artÃ­culos';
 
                 if (!items.length) {
                     cdFoot.hidden = true;
                     cdList.innerHTML =
                         '<div class="cd-empty">' +
                             '<svg class="w-14 h-14 mx-auto text-purple-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' +
-                            '<p>Tu carrito está vacío</p>' +
-                            '<small>Agrega productos desde el catálogo.</small>' +
+                            '<p>Tu carrito estÃ¡ vacÃ­o</p>' +
+                            '<small>Agrega productos desde el catÃ¡logo.</small>' +
                         '</div>';
                     return;
                 }
@@ -3531,7 +3191,7 @@
                             '<div class="cd-unit">' + fmt(item.price) + ' c/u</div>' +
                             '<div class="cd-meta">' +
                                 '<span class="qty" data-id="' + id + '">' +
-                                    '<button type="button" data-action="dec" aria-label="Restar">−</button>' +
+                                    '<button type="button" data-action="dec" aria-label="Restar">âˆ’</button>' +
                                     '<span>' + item.qty + '</span>' +
                                     '<button type="button" data-action="inc" aria-label="Sumar">+</button>' +
                                 '</span>' +
@@ -3641,7 +3301,7 @@
             const resetBtn = document.getElementById('cfReset');
             const searchInp = document.getElementById('cfSearch');
             const PER_PAGE = 20;
-            const CATS = ['Laptops', 'Computadoras', 'Componentes', 'Periféricos', 'Impresión'];
+            const CATS = ['Laptops', 'Computadoras', 'Componentes', 'PerifÃ©ricos', 'ImpresiÃ³n'];
             const CAT_MAP = {
                 'Procesadores': 'Componentes',
                 'Tarjetas Madre AMD': 'Componentes',
@@ -3659,22 +3319,22 @@
                 'Enclosure/Case externo': 'Componentes',
                 'Fuentes de Poder': 'Componentes',
                 'Enfriamiento': 'Componentes',
-                'Pastas Térmicas': 'Componentes',
+                'Pastas TÃ©rmicas': 'Componentes',
                 'Thermal Pads': 'Componentes',
                 'Cases': 'Componentes',
                 'Equipos Repotenciados': 'Computadoras',
-                'Periféricos y Gaming': 'Periféricos',
-                'Teclados': 'Periféricos',
-                'Mouses': 'Periféricos',
-                'Kit Teclado + Mouse': 'Periféricos',
-                'Mouse Pads': 'Periféricos',
-                'Keycaps': 'Periféricos',
-                'Audífonos': 'Periféricos',
-                'Micrófonos': 'Periféricos',
-                'Controles/Volantes': 'Periféricos',
-                'Controles': 'Periféricos',
-                'Sillas Gamer': 'Periféricos',
-                'Mesas/Escritorios Gamer': 'Periféricos',
+                'PerifÃ©ricos y Gaming': 'PerifÃ©ricos',
+                'Teclados': 'PerifÃ©ricos',
+                'Mouses': 'PerifÃ©ricos',
+                'Kit Teclado + Mouse': 'PerifÃ©ricos',
+                'Mouse Pads': 'PerifÃ©ricos',
+                'Keycaps': 'PerifÃ©ricos',
+                'AudÃ­fonos': 'PerifÃ©ricos',
+                'MicrÃ³fonos': 'PerifÃ©ricos',
+                'Controles/Volantes': 'PerifÃ©ricos',
+                'Controles': 'PerifÃ©ricos',
+                'Sillas Gamer': 'PerifÃ©ricos',
+                'Mesas/Escritorios Gamer': 'PerifÃ©ricos',
                 'Laptops': 'Laptops',
                 'Mini PC': 'Computadoras',
                 'Computadoras': 'Computadoras',
@@ -3682,21 +3342,21 @@
                 'Tabletas Graficas': 'Componentes',
                 'Monitores': 'Computadoras',
                 'Proyectores y Pantallas': 'Computadoras',
-                'Audio': 'Periféricos',
-                'Grabación y Podcast': 'Periféricos',
-                'Webcam': 'Periféricos',
-                'Impresoras': 'Impresión',
-                'Tintas y Toner': 'Impresión',
-                'Letreros Led y Lámparas': 'Componentes',
+                'Audio': 'PerifÃ©ricos',
+                'GrabaciÃ³n y Podcast': 'PerifÃ©ricos',
+                'Webcam': 'PerifÃ©ricos',
+                'Impresoras': 'ImpresiÃ³n',
+                'Tintas y Toner': 'ImpresiÃ³n',
+                'Letreros Led y LÃ¡mparas': 'Componentes',
                 'Soportes': 'Componentes',
                 'Redes': 'Componentes',
                 'Router y Mesh': 'Componentes',
                 'Router': 'Componentes',
                 'Cargadores': 'Componentes',
-                'UPS / Respaldo Eléctrico': 'Componentes',
+                'UPS / Respaldo ElÃ©ctrico': 'Componentes',
                 'Cables y Adaptadores': 'Componentes',
                 'Camaras de Seguridad': 'Componentes',
-                'Maletines y Bolsos': 'Periféricos',
+                'Maletines y Bolsos': 'PerifÃ©ricos',
                 'Accesorios': 'Componentes',
                 'Gift Cards y Licencias': 'Componentes'
             };
@@ -3705,7 +3365,7 @@
             pagEl.className = 'cr-pag';
             pagEl.id = 'crPag';
             pagEl.setAttribute('role', 'navigation');
-            pagEl.setAttribute('aria-label', 'Paginación');
+            pagEl.setAttribute('aria-label', 'PaginaciÃ³n');
             grid.parentNode.insertBefore(pagEl, emptyEl);
 
             function buildData() {
@@ -3787,15 +3447,15 @@
                 pagEl.hidden = false;
                 const CHEV = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>';
                 const CHEVR = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
-                let html = '<button type="button" data-p="' + (state.page - 1) + '" aria-label="Página anterior"' + (state.page === 1 ? ' disabled' : '') + '>' + CHEV + '</button>';
+                let html = '<button type="button" data-p="' + (state.page - 1) + '" aria-label="PÃ¡gina anterior"' + (state.page === 1 ? ' disabled' : '') + '>' + CHEV + '</button>';
                 pageNumbers(state.page, totalPages).forEach(p => {
                     if (p === '...') {
-                        html += '<span class="dots">…</span>';
+                        html += '<span class="dots">â€¦</span>';
                     } else {
                         html += '<button type="button" data-p="' + p + '"' + (p === state.page ? ' class="is-active" aria-current="page"' : '') + '>' + p + '</button>';
                     }
                 });
-                html += '<button type="button" data-p="' + (state.page + 1) + '" aria-label="Página siguiente"' + (state.page === totalPages ? ' disabled' : '') + '>' + CHEVR + '</button>';
+                html += '<button type="button" data-p="' + (state.page + 1) + '" aria-label="PÃ¡gina siguiente"' + (state.page === totalPages ? ' disabled' : '') + '>' + CHEVR + '</button>';
                 pagEl.innerHTML = html;
             }
 
@@ -4026,7 +3686,7 @@
             function setMeta() {
                 var scope = state.section || state.subcat || state.cat;
                 var brandName = (window.GigaData && GigaData.store && GigaData.store().name) || 'MANIAWORLD';
-                document.title = (scope ? scope + ' | ' : '') + 'Catálogo — ' + brandName;
+                document.title = (scope ? scope + ' | ' : '') + 'CatÃ¡logo â€” ' + brandName;
             }
 
             function initFromURL() {
@@ -4152,6 +3812,6 @@
     <script src="assets/js/bottomnav.js"></script>
     <script src="assets/js/transition.js"></script>
     <!-- Datos dinamicos (Supabase): config/sb/data ya cargados en <head> -->
-    <script src="assets/js/store.js?v=20261108"></script>
+    <script src="assets/js/store.js?v=20261119"></script>
 </body>
 </html>
